@@ -1,0 +1,27 @@
+POST http://localhost:8000/api/role/createrole HTTP/1.1
+Content-Type: application/json
+
+{
+    "role_name": "scholar",
+    "role_description": "scholar"
+}
+
+######
+
+POST http://localhost:8000/api/user/createuser HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "craususrhyle1@gmail.com",
+    "password": "rairudesu1234"
+}
+
+######
+
+POST http://localhost:8000/api/user/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "craususrhyle1@gmail.com",
+    "password": "rairudesu1234"
+}
