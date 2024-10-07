@@ -12,12 +12,18 @@ class Scholar extends User
 
     protected $table = 'scholars';
 
+    protected $primaryKey = 'scholar_id';
+
     protected $fillable = [
         'firstname',
         'lastname',
         'age',
         'address',
-        'mobilenumber'
+        'mobilenumber',
+        'scholar_type_id',
+        'user_id',
+        'school_id',
+        'baranggay_id'
     ];
 
     public function eventType() {
@@ -26,5 +32,13 @@ class Scholar extends User
 
     public function user() {
         return $this->belongsTo('App\Models\User','user_id');
+    }
+
+    public function school() {
+        return $this->belongsTo('App\Models\School','school_id');
+    }
+
+    public function baranggay() {
+        return $this->belongsTo('App\Models\Baranggay','baranggay_id');
     }
 }

@@ -3,17 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\ScholarStoreRequest;
 use App\Http\Requests\UserStoreRequest;
+use App\Models\Scholar;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function createAccount(UserStoreRequest $request) {
+    public function createUserAccount(UserStoreRequest $request) {
         try {
             User::create($request->all());
             return response(['message' => 'user created successfully'], 201);
+        } catch (\Throwable $th) {
+            return response(['message'=> $th->getMessage()], 500);
+        }
+    }
+
+    public function createScholarAccount(ScholarStoreRequest $request) {
+        try {
+            Scholar::create($request->all());
+            return response(['message' => 'scholar created successfully'], 201);
         } catch (\Throwable $th) {
             return response(['message'=> $th->getMessage()], 500);
         }
