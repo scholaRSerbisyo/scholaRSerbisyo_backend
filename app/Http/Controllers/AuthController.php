@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\ScholarsBySchoolRequest;
 use App\Http\Requests\ScholarStoreRequest;
 use App\Http\Requests\UserStoreRequest;
 use App\Models\Scholar;
@@ -12,6 +13,38 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    public function showAdmins() {
+        try {
+            return User::where('role_id', 1)->get();
+        } catch (\Throwable $th) {
+            return response(['message' => $th->getMessage()],500);
+        }
+    }
+
+    public function showScholars() {
+        try {
+            return User::where('role_id',2)->get();
+        } catch (\Throwable $th) {
+            return response(['message' => $th->getMessage()],500);
+        }
+    }
+
+    public function showScholarsBySchool(ScholarsBySchoolRequest $request) {
+        try {
+            return Scholar::where('school_id', $request->all())->get();
+        } catch (\Throwable $th) {
+            return response(['message'=> $th->getMessage()],500);
+        }
+    }
+
+    public function showAllUsers() {
+        try {
+            return User::all();
+        } catch (\Throwable $th) {
+            return response(['message'=> $th->getMessage()],500);
+        }
+    }
+
     public function createUserAccount(UserStoreRequest $request) {
         try {
             User::create($request->all());

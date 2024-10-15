@@ -11,12 +11,14 @@ class Baranggay extends Model
 
     protected $table = 'baranggays';
 
+    protected $primaryKey = 'baranggay_id';
+
     protected $fillable = [
         'baranggay_name',
         'address'
     ];
 
     public function scholars() {
-        return $this->hasMany('App\Models\Scholar');
+        return $this->hasMany('App\Models\Scholar', 'scholar_id');
     }
 }

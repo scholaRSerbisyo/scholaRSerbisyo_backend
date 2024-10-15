@@ -19,6 +19,6 @@ class School extends Model
     ];
 
     public function scholars() {
-        return $this->hasMany('App\Models\Scholar', 'scholar_id');
+        return $this->hasMany(Scholar::class, 'scholar_id');
     }
 }

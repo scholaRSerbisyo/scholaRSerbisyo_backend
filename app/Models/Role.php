@@ -10,12 +10,14 @@ class Role extends Model
 
     protected $table = 'roles';
 
+    protected $primaryKey = 'role_id';
+
     protected $fillable = [
         'role_name',
         'role_description'
     ];
 
-    public function user() {
-        return $this->hasMany('App\Models\User');
+    public function users() {
+        return $this->hasMany('App\Models\User', 'user_id');
     }
 }
