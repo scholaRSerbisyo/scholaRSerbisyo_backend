@@ -52,10 +52,10 @@ class User extends Authenticatable
     }
 
     public function scholars() {
-        return $this->hasMany('App\Models\Scholar');
+        return $this->hasMany('App\Models\Scholar', 'scholar_id');
     }
 
     public function admins() {
-        return $this->hasMany('App\Models\Admin');
+        return $this->hasMany('App\Models\Admin', 'admin_id');
     }
 }

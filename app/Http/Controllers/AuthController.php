@@ -13,9 +13,13 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    public function __construct() {
+        $this->model = new User();
+    }
+
     public function showAdmins() {
         try {
-            return User::where('role_id', 1)->get();
+            return User::where('role_id', 1)->with('admins')->get();
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()],500);
         }
@@ -23,7 +27,7 @@ class AuthController extends Controller
 
     public function showScholars() {
         try {
-            return User::where('role_id',2)->get();
+            return User::where('role_id',2)->with('scholars')->get();
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()],500);
         }
@@ -63,6 +67,28 @@ class AuthController extends Controller
         }
     }
 
+    public function loginAdminAccount(LoginRequest $request) {
+        try {
+            $credentials = $request->only(['email', 'password']);
+
+            if (!Auth::attempt($credentials)) {
+                return response(['message' => "account doesn't exist"], 404);
+            }
+
+            $user = $request->user();
+
+            if ($user["role_id"] === 2) {
+                return response(['message' => 'admins can only access this!'], 400);
+            }
+
+            $token = $request->user()->createToken('Personal Access Token')->plainTextToken;
+
+            return response(['token' => $token, 'role' => $request->user()->role_id], 200);
+        } catch (\Throwable $th) {
+            return response(['message' => $th->getMessage()], 500);
+        }
+    }
+
     public function loginAccount(LoginRequest $request) {
         try {
             $credentials = $request->only(['email', 'password']);
@@ -72,11 +98,31 @@ class AuthController extends Controller
             }
 
             $user = $request->user();
+
+            if ($user["role_id"] === 1) {
+                return response(['message' => 'scholars can only access this!'], 400);
+            }
+
             $token = $request->user()->createToken('Personal Access Token')->plainTextToken;
 
             return response(['token' => $token, 'role' => $request->user()->role_id], 200);
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()], 500);
         }
+    }
+
+    public function logoutAccount(Request $request) {
+        try {
+            $request->user()->currentAccessToken()->delete();
+
+            return response(['message' => 'Successfully logged out'], 200);
+        } catch (\Throwable $th) {
+            return response(['message' => $th->getMessage()], 500);
+        }
+    }
+
+    public function show(Request $request)
+    {
+        return response()->json($request->user(), 200);
     }
 }

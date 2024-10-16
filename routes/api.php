@@ -11,10 +11,13 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('/user')->group(function () {
     Route::post('/createuser', [AuthController::class, 'createUserAccount']);
     Route::post('/createscholar', [AuthController::class, 'createScholarAccount']);
+    Route::post('/admin/login', [AuthController::class, 'loginAdminAccount']);
     Route::post('/login', [AuthController::class, 'loginAccount']);
-    Route::post('/users', [AuthController::class,'showAllUsers'])->middleware(['auth:sanctum']);
-    Route::post('/admins', [AuthController::class,'showAdmins'])->middleware(['auth:sanctum']);
-    Route::post('/scholars', [AuthController::class,'showScholars'])->middleware(['auth:sanctum']);
+    Route::get('/me', [AuthController::class, 'show'])->middleware(['auth:sanctum']);
+    Route::post('/logout', [AuthController::class, 'logoutAccount'])->middleware(['auth:sanctum']);
+    Route::get('/users', [AuthController::class,'showAllUsers']);
+    Route::get('/admins', [AuthController::class,'showAdmins']);
+    Route::get('/scholars', [AuthController::class,'showScholars']);
     Route::post('/scholarsbyschool', [AuthController::class,'showScholarsBySchool'])->middleware(['auth:sanctum']);
 });
 

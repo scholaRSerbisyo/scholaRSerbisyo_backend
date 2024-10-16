@@ -56,7 +56,8 @@ Content-Type: application/json
     "age": "22",
     "address": "lapasan",
     "mobilenumber": "09460728560",
-    "user_id": 3,
+    "scholar_type_id": 1,
+    "user_id": 2,
     "school_id": 1,
     "baranggay_id": 1
 }
@@ -67,6 +68,11 @@ POST http://localhost:8000/api/user/login HTTP/1.1
 Content-Type: application/json
 
 {
-    "email": "craususrhyle1@gmail.com",
-    "password": "rairudesu1234"
+    "email": "craususrhyleadmin@gmail.com",
+    "password": "rairudesu"
 }
+
+######
+
+GET http://localhost:8000/api/user/scholars HTTP/1.1
+Content-Type: application/json
