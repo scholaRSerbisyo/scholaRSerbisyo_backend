@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AdminStoreRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\ScholarsBySchoolRequest;
 use App\Http\Requests\ScholarStoreRequest;
 use App\Http\Requests\UserStoreRequest;
+use App\Models\Admin;
 use App\Models\Scholar;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -67,6 +69,15 @@ class AuthController extends Controller
         }
     }
 
+    public function createAdminAccount(AdminStoreRequest $request) {
+        try {
+            Admin::create($request->all());
+            return response(['message' => 'admin created successfully'], 201);
+        } catch (\Throwable $th) {
+            return response(['message'=> $th->getMessage()], 500);
+        }
+    }
+
     public function loginAdminAccount(LoginRequest $request) {
         try {
             $credentials = $request->only(['email', 'password']);
@@ -123,6 +134,6 @@ class AuthController extends Controller
 
     public function show(Request $request)
     {
-        return response()->json($request->user(), 200);
+        return response()->json($request->user()->load('admin'), 200);
     }
 }

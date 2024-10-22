@@ -17,6 +17,10 @@ class Admin extends User
         return $this->hasOne('App\Models\AdminType', 'admin_type_id');
     }
 
+    public function eventType() {
+        return $this->hasMany('App\Models\AdminType', 'admin_type_id');
+    }
+
     public function user() {
         return $this->belongsTo('App\Models\User', 'user_id');
     }
