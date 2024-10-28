@@ -61,6 +61,6 @@ class User extends Authenticatable
 
     public function admin()
     {
-        return $this->hasOne('App\Models\Admin', 'admin_id');
+        return $this->belongsTo('App\Models\Admin', 'admin_id');
     }
 }

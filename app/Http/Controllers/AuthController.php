@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     public function __construct() {
-        $this->model = new User();
+        $this->userModel = new User();
+        $this->adminModel = new Admin();
     }
 
     public function showAdmins() {
@@ -62,6 +63,10 @@ class AuthController extends Controller
 
     public function createScholarAccount(ScholarStoreRequest $request) {
         try {
+            if ($request['role_id'] == 1) {
+                return response(['message'=> 'role is not for Scholars'],500);
+            }
+
             Scholar::create($request->all());
             return response(['message' => 'scholar created successfully'], 201);
         } catch (\Throwable $th) {
@@ -71,6 +76,10 @@ class AuthController extends Controller
 
     public function createAdminAccount(AdminStoreRequest $request) {
         try {
+            if ($request['role_id'] == 2) {
+                return response(['message'=> 'role is not for Admin'],500);
+            }
+
             Admin::create($request->all());
             return response(['message' => 'admin created successfully'], 201);
         } catch (\Throwable $th) {
@@ -94,7 +103,7 @@ class AuthController extends Controller
 
             $token = $request->user()->createToken('Personal Access Token')->plainTextToken;
 
-            return response(['token' => $token, 'role' => $request->user()->role_id], 200);
+            return response(['token' => $token, 'role' => $request->user()->role_id, 'admin_type' => $request->user()->with(['admin.adminType'])->first()->adminType], 200);
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()], 500);
         }

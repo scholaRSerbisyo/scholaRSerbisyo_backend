@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('admins', function (Blueprint $table) {
             $table->id('admin_id');
+            $table->string('admin_name');
             $table->unsignedBigInteger('admin_type_id')->default(1);;
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('event_type_id');
