@@ -22,7 +22,7 @@ class AuthController extends Controller
 
     public function showAdmins() {
         try {
-            return User::where('role_id', 1)->with('admins')->get();
+            return Admin::with('user')->get();
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()],500);
         }
@@ -30,7 +30,7 @@ class AuthController extends Controller
 
     public function showScholars() {
         try {
-            return User::where('role_id',2)->with('scholars')->get();
+            return Scholar::with('user', 'school', 'baranggay')->get();
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()],500);
         }

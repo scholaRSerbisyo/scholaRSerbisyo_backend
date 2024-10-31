@@ -19,8 +19,8 @@ Route::prefix('/user')->group(function () {
     Route::get('/me', [AuthController::class, 'show'])->middleware(['auth:sanctum']);
     Route::post('/logout', [AuthController::class, 'logoutAccount'])->middleware(['auth:sanctum']);
     Route::get('/users', [AuthController::class,'showAllUsers']);
-    Route::get('/admins', [AuthController::class,'showAdmins']);
-    Route::get('/scholars', [AuthController::class,'showScholars']);
+    Route::get('/admins', [AuthController::class,'showAdmins'])->middleware(['auth:sanctum']);
+    Route::get('/scholars', [AuthController::class,'showScholars'])->middleware(['auth:sanctum']);
     Route::post('/scholarsbyschool', [AuthController::class,'showScholarsBySchool'])->middleware(['auth:sanctum']);
 });
 
@@ -46,4 +46,5 @@ Route::prefix('/admintype')->group(function () {
 
 Route::prefix('/events')->group(function () {
     Route::post('/createeventtype', [EventTypeController::class, 'createEventType']);
+    Route::get('/geteventtypes', [EventTypeController::class, 'show'])->middleware(['auth:sanctum']);
 });

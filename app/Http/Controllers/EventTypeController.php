@@ -16,4 +16,12 @@ class EventTypeController extends Controller
             return response(['message' => $th->getMessage()],500);
         }
     }
+
+    public function show() {
+        try {
+            return EventType::all();
+        } catch (\Throwable $th) {
+            return response(['message' => $th->getMessage()],500);
+        }
+    }
 }

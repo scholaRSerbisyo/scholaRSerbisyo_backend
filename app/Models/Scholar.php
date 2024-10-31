@@ -41,4 +41,8 @@ class Scholar extends User
     public function baranggay() {
         return $this->belongsTo('App\Models\Baranggay','baranggay_id');
     }
+
+    public function submissions() {
+        return $this->hasMany('App\Models\Submission','submission_id');
+    }
 }
