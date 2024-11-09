@@ -27,6 +27,7 @@ class ScholarStoreRequest extends FormRequest
             'age' => 'required|string',
             'address' => 'required|string',
             'mobilenumber' => 'required|string',
+            'yearlevel' => 'required|string',
             'scholar_type_id' => 'required|exists:scholar_types,scholar_type_id',
             'user_id' => 'required|exists:users,user_id',
             'school_id' => 'required|exists:schools,school_id',

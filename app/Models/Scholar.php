@@ -20,6 +20,7 @@ class Scholar extends User
         'age',
         'address',
         'mobilenumber',
+        'yearlevel',
         'scholar_type_id',
         'user_id',
         'school_id',
