@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('age');
             $table->string('address');
             $table->string('mobilenumber', 11);
+            $table->string('yearlevel');
             $table->unsignedBigInteger('scholar_type_id')->default(1);
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('school_id');
