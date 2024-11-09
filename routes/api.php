@@ -16,7 +16,7 @@ Route::prefix('/user')->group(function () {
     Route::post('/createadmin', [AuthController::class, 'createAdminAccount']);
     Route::post('/admin/login', [AuthController::class, 'loginAdminAccount']);
     Route::post('/login', [AuthController::class, 'loginAccount']);
-    Route::get('/me', [AuthController::class, 'show'])->middleware(['auth:sanctum']);
+    Route::get('/me', [AuthController::class, 'showCurrentAdmin'])->middleware(['auth:sanctum']);
     Route::post('/logout', [AuthController::class, 'logoutAccount'])->middleware(['auth:sanctum']);
     Route::get('/users', [AuthController::class,'showAllUsers']);
     Route::get('/admins', [AuthController::class,'showAdmins'])->middleware(['auth:sanctum']);

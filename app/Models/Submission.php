@@ -13,13 +13,6 @@ class Submission extends Model
     protected $table = 'submissions';
     protected $primaryKey = 'submission_id';
 
-    protected $fillable = [
-        'image_uuid',
-        'time_in',
-        'time_out',
-        'scholar_id'
-    ];
-
     public function scholar()
     {
         return $this->belongsTo('App\Models\Scholar', 'scholar_id');

@@ -59,12 +59,8 @@ class User extends Authenticatable
         return $this->hasOne('App\Models\Scholar', 'scholar_id');
     }
 
-    public function admins() {
-        return $this->hasMany('App\Models\Admin', 'admin_id');
-    }
-
     public function admin()
     {
-        return $this->belongsTo('App\Models\Admin', 'admin_id');
+        return $this->hasOne('App\Models\Admin', 'user_id');
     }
 }

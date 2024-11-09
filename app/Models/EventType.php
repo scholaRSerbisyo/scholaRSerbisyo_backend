@@ -20,4 +20,8 @@ class EventType extends Model
     public function admin() {
         return $this->hasOne('App\Models\Admin');
     }
+
+    public function events() {
+        return $this->hasMany('App\Models\Event');
+    }
 }

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('events', function(Blueprint $table) {
             $table->unsignedBigInteger('scholar_id');
-            $table->string('image_uuid');
+            $table->string('submission_image_uuid');
             $table->time('time_in');
             $table->time('time_out')->nullable();
             $table->foreign('scholar_id')->references('scholar_id')->on('scholars')->onDelete('restrict')->onUpdate('cascade');

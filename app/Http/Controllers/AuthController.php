@@ -10,6 +10,7 @@ use App\Http\Requests\UserStoreRequest;
 use App\Models\Admin;
 use App\Models\Scholar;
 use App\Models\User;
+use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -90,20 +91,23 @@ class AuthController extends Controller
     public function loginAdminAccount(LoginRequest $request) {
         try {
             $credentials = $request->only(['email', 'password']);
+            $user = User::where('email', $credentials['email'])->first();
 
-            if (!Auth::attempt($credentials)) {
-                return response(['message' => "account doesn't exist"], 404);
+            if (!$user) {
+                return response(['message' => "Account doesn't exist"], 404);
+            }
+            
+            if ($user->role_id === 2) {
+                return response(['message' => 'Admins can only access this!'], 400);
             }
 
-            $user = $request->user();
-
-            if ($user["role_id"] === 2) {
-                return response(['message' => 'admins can only access this!'], 400);
+            if (!Hash::check($credentials['password'], $user->password)) {
+                return response(['message' => "Incorrect password"], 401);
             }
 
-            $token = $request->user()->createToken('Personal Access Token')->plainTextToken;
+            $token = $user->createToken('Personal Access Token')->plainTextToken;
 
-            return response(['token' => $token, 'role' => $request->user()->role_id, 'admin_type' => $request->user()->with(['admin.adminType'])->first()->adminType], 200);
+            return response(['token' => $token, 'role' => $user->role_id], 200);
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()], 500);
         }
@@ -112,20 +116,23 @@ class AuthController extends Controller
     public function loginAccount(LoginRequest $request) {
         try {
             $credentials = $request->only(['email', 'password']);
+            $user = User::where('email', $credentials['email'])->first();
 
-            if (!Auth::attempt($credentials)) {
-                return response(['message' => "account doesn't exist"], 404);
+            if (!$user) {
+                return response(['message' => "Account doesn't exist"], 404);
             }
 
-            $user = $request->user();
-
-            if ($user["role_id"] === 1) {
-                return response(['message' => 'scholars can only access this!'], 400);
+            if (!Hash::check($credentials['password'], $user->password)) {
+                return response(['message' => "Incorrect password"], 401);
             }
 
-            $token = $request->user()->createToken('Personal Access Token')->plainTextToken;
+            if ($user->role_id === 1) {
+                return response(['message' => 'Scholars can only access this!'], 400);
+            }
 
-            return response(['token' => $token, 'role' => $request->user()->role_id], 200);
+            $token = $user->createToken('Personal Access Token')->plainTextToken;
+
+            return response(['token' => $token, 'role' => $user->role_id], 200);
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()], 500);
         }
@@ -141,7 +148,7 @@ class AuthController extends Controller
         }
     }
 
-    public function show(Request $request)
+    public function showCurrentAdmin(Request $request)
     {
         return response()->json($request->user()->load('admin'), 200);
     }
