@@ -29,7 +29,7 @@ class ScholarStoreRequest extends FormRequest
             'mobilenumber' => 'required|string',
             'yearlevel' => 'required|string',
             'scholar_type_id' => 'required|exists:scholar_types,scholar_type_id',
-            'user_id' => 'required|exists:users,user_id',
+            'user_id' => 'exists:users,user_id',
             'school_id' => 'required|exists:schools,school_id',
             'baranggay_id' => 'required|exists:baranggays,baranggay_id'
         ];
