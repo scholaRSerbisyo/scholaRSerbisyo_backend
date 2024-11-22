@@ -18,11 +18,13 @@ class Event extends Model
         'event_name',
         'description',
         'date',
-        'time',
+        'time_from',
+        'time_to',
         'location',
         'status',
         'admin',
         'event_type_id',
+        'event_type',
         'submissions',
         'scholar_id',
         'submission_image_uuid',
@@ -34,13 +36,8 @@ class Event extends Model
         'submissions' => 'array',
     ];
 
-    public function admin()
-    {
-        return $this->belongsTo('App\Models\AdminType', 'admin_type_id');
-    }
-
     public function eventType() {
-        return $this->belongsTo('App\Models\EventType', 'event_type_id');
+        return $this->morphTo();
     }
 
     public function submissions() {

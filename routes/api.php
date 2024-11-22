@@ -2,10 +2,10 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BaranggayController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScholarTypeController;
 use App\Http\Controllers\AdminTypeController;
-use App\Http\Controllers\EventTypeController;
 use App\Http\Controllers\SchoolController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +30,7 @@ Route::prefix('/role')->group(function () {
 
 Route::prefix('/school')->group(function () {
     Route::post('/create', [SchoolController::class, 'createSchool']);
+    Route::get('/getschools', [SchoolController::class, 'getAllSchools'])->middleware(['auth:sanctum']);
 });
 
 Route::prefix('/baranggay')->group(function () {
@@ -45,6 +46,11 @@ Route::prefix('/admintype')->group(function () {
 });
 
 Route::prefix('/events')->group(function () {
-    Route::post('/createeventtype', [EventTypeController::class, 'createEventType']);
-    Route::get('/geteventtypes', [EventTypeController::class, 'show'])->middleware(['auth:sanctum']);
+    Route::post('/createevent', [EventController::class, 'createEvent'])->middleware(['auth:sanctum']);
+    Route::post('/getimage', [EventController::class, 'getImage'])->middleware(['auth:sanctum']);
+    Route::get('/getevents', [EventController::class, 'getAllEvents'])->middleware(['auth:sanctum']);
+    Route::get('/getcsoevents', [EventController::class, 'getCSOEvents'])->middleware(['auth:sanctum']);
+    Route::get('/getschoolevents', [EventController::class, 'getSchoolEvents'])->middleware(['auth:sanctum']);
+    Route::get('/geteventtypes', [EventController::class, 'show'])->middleware(['auth:sanctum']);
+    Route::put('/updateevent', [EventController::class, 'updateEvent'])->middleware(['auth:sanctumr']);
 });

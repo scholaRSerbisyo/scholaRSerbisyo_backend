@@ -25,7 +25,6 @@ class AdminStoreRequest extends FormRequest
             'admin_name' => 'required|string',
             'admin_type_id' => 'required|exists:admin_types,admin_type_id',
             'user_id' => 'required|exists:users,user_id',
-            'event_type_id' => 'required|exists:event_types,event_type_id'
         ];
     }
 }

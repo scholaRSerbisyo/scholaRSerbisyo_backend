@@ -17,17 +17,11 @@ class Admin extends User
         'admin_name',
         'admin_type_id',
         'user_id',
-        'event_type_id',
     ];
 
     public function adminType()
     {
         return $this->belongsTo('App\Models\AdminType', 'admin_type_id');
-    }
-
-    public function eventType() 
-    {
-        return $this->hasMany('App\Models\EventType', 'event_type_id');
     }
 
     public function user() 

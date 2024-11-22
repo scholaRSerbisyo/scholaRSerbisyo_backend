@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class EventStoreRequest extends FormRequest
+class EventUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -30,8 +30,7 @@ class EventStoreRequest extends FormRequest
             'time_to' => 'required|string',
             'location' => 'required|string',
             'status' => 'required|string',
-            'event_type_id' => 'required|integer',
-            'event_type' => 'required|string|in:App\Models\School,App\Models\Baranggay',
+            'event_type_id' => 'required|exists:event_types,event_type_id',
         ];
     }
 }

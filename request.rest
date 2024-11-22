@@ -74,31 +74,11 @@ Content-Type: application/json
 
 ######
 
-POST http://localhost:8000/api/events/createeventtype HTTP/1.1
-Content-Type: application/json
-
-{
-    "event_type_name": "ordinary",
-    "event_type_description": "ordinary event"
-}
-
-######
-
-POST http://localhost:8000/api/events/createeventtype HTTP/1.1
-Content-Type: application/json
-
-{
-    "event_type_name": "special",
-    "event_type_description": "special event"
-}
-
-######
-
 POST http://localhost:8000/api/user/createuser HTTP/1.1
 Content-Type: application/json
 
 {
-    "email": "rhyle11225556544@gmail.com",
+    "email": "craususrhyle@gmail.com",
     "password": "rairudesu"
 }
 
@@ -113,8 +93,9 @@ Content-Type: application/json
     "age": "23",
     "address": "basta",
     "mobilenumber": "09460728560",
+    "yearlevel": "4th year",
     "scholar_type_id": 2,
-    "user_id": 8,
+    "user_id": 2,
     "school_id": 1,
     "baranggay_id": 1
 }
@@ -128,7 +109,6 @@ Content-Type: application/json
     "admin_name": "Admin Ben",
     "admin_type_id": 1,
     "user_id": 1,
-    "event_type_id": 1
 }
 
 ######

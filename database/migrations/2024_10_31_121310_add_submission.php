@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('events', function(Blueprint $table) {
-            $table->unsignedBigInteger('scholar_id');
-            $table->string('submission_image_uuid');
-            $table->time('time_in');
+            $table->unsignedBigInteger('scholar_id')->nullable();
+            $table->string('submission_image_uuid')->nullable();
+            $table->time('time_in')->nullable();
             $table->time('time_out')->nullable();
             $table->foreign('scholar_id')->references('scholar_id')->on('scholars')->onDelete('restrict')->onUpdate('cascade');
         });

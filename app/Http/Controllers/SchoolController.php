@@ -17,4 +17,14 @@ class SchoolController extends Controller
             return response(['message'=> $th->getMessage()], 500);
         }
     }
+
+    public function getAllSchools() {
+        try {
+            $schools = School::withCount('events')->get();
+
+            return response()->json($schools);
+        } catch (\Throwable $th) {
+            return response(['message' => $th->getMessage()], 500);
+        }
+    }
 }

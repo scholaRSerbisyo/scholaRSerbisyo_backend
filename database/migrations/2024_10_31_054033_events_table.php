@@ -17,14 +17,15 @@ return new class extends Migration
             $table->string('event_name');
             $table->string('description');
             $table->date('date');
-            $table->time('time');
+            $table->time('time_from');
+            $table->time('time_to');
             $table->string('location');
             $table->string('status');
             $table->string('admin');
             $table->unsignedBigInteger('event_type_id');
+            $table->string('event_type');
             $table->json('submissions')->nullable();
             $table->timestamps();
-            $table->foreign('event_type_id')->references('event_type_id')->on('event_types')->onDelete('restrict')->onUpdate('cascade');
         });
     }
 
