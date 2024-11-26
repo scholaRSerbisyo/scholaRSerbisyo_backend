@@ -23,28 +23,14 @@ class EventController extends Controller
 
     public function createEvent(EventStoreRequest $request) {
         try {
-            $save = Event::create($request->only([
-                'event_image_uuid',
-                'event_name',
-                'description',
-                'date',
-                'time_from',
-                'time_to',
-                'location',
-                'status',
-                'admin',
-                'event_type_id',
-                'event_type',
-            ]));
+            $eventData = $request->validated();
+            $eventData['status'] = $this->determineEventStatus($eventData['date']);
 
-            // Retrieve the Base64 image string directly
-            $imageData = $request->input('image');
-            $uuid = $request->input('event_image_uuid');
+            $event = Event::create($eventData);
 
-            if ($save) {
-                $this->r2Service->uploadFileToBucket($imageData, $uuid);
-    
-                return response(['message' => 'event created succesfully'], 201);
+            if ($event) {
+                $this->r2Service->uploadFileToBucket($request->input('image'), $eventData['event_image_uuid']);
+                return response(['message' => 'Event created successfully', 'event' => $event], 201);
             }
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()], 500);
@@ -53,22 +39,17 @@ class EventController extends Controller
 
     public function updateEvent(EventUpdateRequest $request, string $id) {
         try {
-            $updatesave = Event::find($id);
+            $event = Event::findOrFail($id);
+            $eventData = $request->validated();
+            $eventData['status'] = $this->determineEventStatus($eventData['date']);
 
-            $imageData = $request->input('image');
-            $uuid = $request->input('event_image_uuid');
-
-            if ($updatesave) {
-                $new = $updatesave->update($request->validated());
-                
-                if ($new) {
-                    $this->r2Service->uploadFileToBucket($imageData, $uuid);
-
-                    return response(['message' => 'Event updated successfully!'], 201);
-                }
-            } else {
-                return response(['messsage' => 'Event not found'], 404);
+            $event->update($eventData);
+            
+            if ($request->has('image')) {
+                $this->r2Service->uploadFileToBucket($request->input('image'), $eventData['event_image_uuid']);
             }
+
+            return response(['message' => 'Event updated successfully!', 'event' => $event], 200);
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()], 500);
         }
@@ -76,15 +57,18 @@ class EventController extends Controller
 
     public function getAllEvents() {
         try {
-            return response()->json(Event::all(), 200);
+            return response()->json(Event::with(['eventType', 'school', 'barangay', 'cso'])->get(), 200);
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()], 500);
         }
     }
 
-    public function getCSOEvents() {
+    public function getCSOEvents()
+    {
         try {
-            return response()->json(Event::where('event_type_id', 1)->get(), 200);
+            return response()->json(Event::whereHas('eventType', function ($query) {
+                $query->where('name', 'CSO');
+            })->get(), 200);
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()], 500);
         }
@@ -92,13 +76,21 @@ class EventController extends Controller
 
     public function getSchoolEvents() {
         try {
-            return response()->json(Event::where('event_type_id', 2)->get(), 200);
+            return response()->json(Event::where('event_type_id', 2)->with('school')->get(), 200);
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()], 500);
         }
     }
 
-    public function getImage(Request $request, CloudflareR2Service $r2Service)
+    public function getBarangayEvents() {
+        try {
+            return response()->json(Event::where('event_type_id', 3)->with('barangay')->get(), 200);
+        } catch (\Throwable $th) {
+            return response(['message' => $th->getMessage()], 500);
+        }
+    }
+
+    public function getImage(Request $request)
     {
         $imageUuid = $request->input('image_uuid');
 
@@ -106,15 +98,9 @@ class EventController extends Controller
             return response()->json(['error' => 'Image UUID is required'], 400);
         }
 
-        // Optional: Add authorization check here
-        // if (!auth()->user()->canAccessImage($imageUuid)) {
-        //     return response()->json(['error' => 'Unauthorized'], 403);
-        // }
-
         try {
-            // Try to get the URL from cache first
-            $url = Cache::remember("image_url_{$imageUuid}", now()->addMinutes(30), function () use ($r2Service, $imageUuid) {
-                return $r2Service->getFileUrl($imageUuid);
+            $url = Cache::remember("image_url_{$imageUuid}", now()->addMinutes(30), function () use ($imageUuid) {
+                return $this->r2Service->getFileUrl($imageUuid);
             });
 
             if ($url === null) {
@@ -127,22 +113,34 @@ class EventController extends Controller
             return response()->json(['error' => 'Unable to generate image URL'], 500);
         }
     }
-    
 
     public function createEventType(EventTypeStoreRequest $request) {
         try {
-            EventType::create($request->all());
-            return response(['message' => 'event type created successfully'], 201);
+            $eventType = EventType::create($request->validated());
+            return response(['message' => 'Event type created successfully', 'eventType' => $eventType], 201);
         } catch (\Throwable $th) {
-            return response(['message' => $th->getMessage()],500);
+            return response(['message' => $th->getMessage()], 500);
         }
     }
 
-    public function show() {
+    public function getEventTypes() {
         try {
-            return EventType::all();
+            return response()->json(EventType::all(), 200);
         } catch (\Throwable $th) {
-            return response(['message' => $th->getMessage()],500);
+            return response(['message' => $th->getMessage()], 500);
+        }
+    }
+
+    private function determineEventStatus($eventDate) {
+        $now = now();
+        $eventDate = \Carbon\Carbon::parse($eventDate);
+
+        if ($eventDate->isToday()) {
+            return 'ongoing';
+        } elseif ($eventDate->isFuture()) {
+            return 'upcoming';
+        } else {
+            return 'completed';
         }
     }
 }

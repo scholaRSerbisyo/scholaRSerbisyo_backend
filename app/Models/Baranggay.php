@@ -10,7 +10,6 @@ class Baranggay extends Model
     use HasFactory;
 
     protected $table = 'baranggays';
-
     protected $primaryKey = 'baranggay_id';
 
     protected $fillable = [
@@ -19,10 +18,10 @@ class Baranggay extends Model
     ];
 
     public function scholars() {
-        return $this->hasMany('App\Models\Scholar', 'scholar_id');
+        return $this->hasMany(Scholar::class, 'baranggay_id');
     }
 
     public function events() {
-        return $this->morphMany(Event::class, 'event_type');
+        return $this->hasMany(Event::class, 'baranggay_id');
     }
 }

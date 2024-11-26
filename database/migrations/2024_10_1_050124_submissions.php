@@ -11,10 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('submissions', function(Blueprint $table) {
-            $table->id('submission_id');
-            $table->timestamps();
-        });
+        
     }
 
     /**
@@ -22,6 +19,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('submissions');
+        
     }
 };
+

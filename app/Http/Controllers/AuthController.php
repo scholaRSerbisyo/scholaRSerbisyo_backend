@@ -158,6 +158,10 @@ class AuthController extends Controller
 
     public function showCurrentAdmin(Request $request)
     {
-        return response()->json($request->user()->load('admin'), 200);
+        try {
+            return response()->json($request->user()->load('admin'), 200);
+        } catch (\Throwable $th) {
+            return response(['message' => $th->getMessage()], 500);
+        }
     }
 }

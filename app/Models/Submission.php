@@ -2,23 +2,34 @@
 
 namespace App\Models;
 
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Model;
 
 class Submission extends Model
 {
-    use HasApiTokens, Notifiable;
-
-    protected $table = 'submissions';
     protected $primaryKey = 'submission_id';
+
+    protected $fillable = [
+        'event_id',
+        'scholar_id',
+        'time_in_image_uuid',
+        'time_out_image_uuid',
+        'time_in',
+        'time_out',
+    ];
+
+    protected $casts = [
+        'time_in' => 'datetime',
+        'time_out' => 'datetime',
+    ];
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id', 'event_id');
+    }
 
     public function scholar()
     {
-        return $this->belongsTo('App\Models\Scholar', 'scholar_id');
-    }
-
-    public function event() {
-        return $this->belongsTo('App\Models\Event', 'event_id');
+        return $this->belongsTo(Scholar::class, 'scholar_id', 'scholar_id');
     }
 }
+

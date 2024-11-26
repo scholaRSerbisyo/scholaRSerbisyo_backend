@@ -22,8 +22,8 @@ POST http://localhost:8000/api/school/create HTTP/1.1
 Content-Type: application/json
 
 {
-    "school_name": "USTP",
-    "address": "ustp"
+    "school_name": "Liceo",
+    "address": "Carmen"
 }
 
 ######
@@ -76,6 +76,7 @@ Content-Type: application/json
 
 POST http://localhost:8000/api/user/createuser HTTP/1.1
 Content-Type: application/json
+Accept: application/json
 
 {
     "email": "craususrhyle@gmail.com",
@@ -86,6 +87,7 @@ Content-Type: application/json
 
 POST http://localhost:8000/api/user/createscholar HTTP/1.1
 Content-Type: application/json
+Accept: application/json
 
 {
     "firstname": "rairu",
@@ -104,17 +106,19 @@ Content-Type: application/json
 
 POST http://localhost:8000/api/user/createadmin HTTP/1.1
 Content-Type: application/json
+Accept: application/json
 
 {
     "admin_name": "Admin Ben",
     "admin_type_id": 1,
-    "user_id": 1,
+    "user_id": 1
 }
 
 ######
 
 POST http://localhost:8000/api/user/admin/login HTTP/1.1
 Content-Type: application/json
+Accept: application/json
 
 {
     "email": "craususrhyleadmin@gmail.com",

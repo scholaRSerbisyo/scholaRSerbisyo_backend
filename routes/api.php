@@ -31,10 +31,12 @@ Route::prefix('/role')->group(function () {
 Route::prefix('/school')->group(function () {
     Route::post('/create', [SchoolController::class, 'createSchool']);
     Route::get('/getschools', [SchoolController::class, 'getAllSchools'])->middleware(['auth:sanctum']);
+    Route::get('/schools/{id}', [SchoolController::class, 'getSchoolWithEvents'])->middleware(['auth:sanctum']);
 });
 
 Route::prefix('/baranggay')->group(function () {
     Route::post('/create', [BaranggayController::class, 'createBaranggay']);
+    Route::get('/getbaranggays', [BaranggayController::class, 'getAllBaranggays'])->middleware(['auth:sanctum']);
 });
 
 Route::prefix('/scholartype')->group(function () {
@@ -51,6 +53,6 @@ Route::prefix('/events')->group(function () {
     Route::get('/getevents', [EventController::class, 'getAllEvents'])->middleware(['auth:sanctum']);
     Route::get('/getcsoevents', [EventController::class, 'getCSOEvents'])->middleware(['auth:sanctum']);
     Route::get('/getschoolevents', [EventController::class, 'getSchoolEvents'])->middleware(['auth:sanctum']);
-    Route::get('/geteventtypes', [EventController::class, 'show'])->middleware(['auth:sanctum']);
+    Route::get('/geteventtypes', [EventController::class, 'getEventTypes'])->middleware(['auth:sanctum']);
     Route::put('/updateevent', [EventController::class, 'updateEvent'])->middleware(['auth:sanctumr']);
 });

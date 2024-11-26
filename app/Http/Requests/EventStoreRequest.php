@@ -23,15 +23,18 @@ class EventStoreRequest extends FormRequest
     {
         return [
             'event_image_uuid' => 'required|string',
-            'event_name' => 'required|string',
+            'event_name' => 'required|string|max:255',
             'description' => 'required|string',
             'date' => 'required|date',
-            'time_from' => 'required|string',
-            'time_to' => 'required|string',
-            'location' => 'required|string',
-            'status' => 'required|string',
-            'event_type_id' => 'required|integer',
-            'event_type' => 'required|string|in:App\Models\School,App\Models\Baranggay',
+            'time_from' => 'required|date_format:H:i',
+            'time_to' => 'required|date_format:H:i|after:time_from',
+            'location' => 'required|string|max:255',
+            'status' => 'required|string|in:upcoming,ongoing,completed',
+            'admin_id' => 'required|exists:admins,admin_id',
+            'event_type_id' => 'required|exists:event_types,id',
+            'school_id' => 'required_if:event_type_id,1|exists:schools,school_id',
+            'baranggay_id' => 'required_if:event_type_id,2|exists:baranggays,baranggay_id',
+            'image' => 'required|string',
         ];
     }
 }

@@ -5,23 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class School extends Model
+class CSO extends Model
 {
     use HasFactory;
 
-    protected $table = 'schools';
-    protected $primaryKey = 'school_id';
+    protected $table = 'csos';
+    protected $primaryKey = 'cso_id';
 
     protected $fillable = [
-        'school_name',
-        'address'
+        'cso_name',
+        'description'
     ];
 
     public function scholars() {
-        return $this->hasMany(Scholar::class, 'school_id');
+        return $this->hasMany(Scholar::class, 'cso_id');
     }
 
     public function events() {
-        return $this->hasMany(Event::class, 'school_id');
+        return $this->hasMany(Event::class, 'cso_id');
     }
 }
