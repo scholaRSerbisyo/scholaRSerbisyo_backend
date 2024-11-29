@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\BaranggayStoreRequest;
 use App\Models\Baranggay;
+use App\Models\Event;
 use Illuminate\Http\Request;
 
 class BaranggayController extends Controller
@@ -37,6 +38,36 @@ class BaranggayController extends Controller
             return response()->json($baranggaysWithEventCounts);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], 500);
+        }
+    }
+
+    public function getBaranggayWithEvents($id)
+    {
+        try {
+            $baranggay = Baranggay::findOrFail($id);
+            
+            $events = Event::where('baranggay_id', $id)
+                ->select('event_id', 'event_name', 'event_image_uuid', 'date', 'time_from', 'time_to', 'location', 'description', 'status')
+                ->get();
+
+            $upcomingEvents = $events->filter(function ($event) {
+                return strtotime($event->date) >= strtotime('today');
+            })->values();
+
+            $pastEvents = $events->filter(function ($event) {
+                return strtotime($event->date) < strtotime('today');
+            })->values();
+
+            return response()->json([
+                'baranggay' => $baranggay,
+                'events' => $events,
+                'upcoming_events' => $upcomingEvents,
+                'past_events' => $pastEvents
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['error' => 'Barangay not found'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while fetching the barangay data'], 500);
         }
     }
 }

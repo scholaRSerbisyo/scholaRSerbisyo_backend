@@ -61,6 +61,7 @@ class SchoolController extends Controller
 
             return response()->json([
                 'school' => $school,
+                'events' => $events,
                 'upcoming_events' => $upcomingEvents,
                 'past_events' => $pastEvents
             ]);

@@ -24,10 +24,20 @@ class EventController extends Controller
     public function createEvent(EventStoreRequest $request) {
         try {
             $eventData = $request->validated();
+            
+            // Check if an event already exists on the given date
+            $existingEvent = Event::whereDate('date', $eventData['date'])->first();
+            
+            if ($existingEvent) {
+                return response([
+                    'message' => 'There is an Event that already assigned to this date',
+                    'existing_event' => $existingEvent
+                ], 422);
+            }
+    
             $eventData['status'] = $this->determineEventStatus($eventData['date']);
-
             $event = Event::create($eventData);
-
+    
             if ($event) {
                 $this->r2Service->uploadFileToBucket($request->input('image'), $eventData['event_image_uuid']);
                 return response(['message' => 'Event created successfully', 'event' => $event], 201);
@@ -57,7 +67,9 @@ class EventController extends Controller
 
     public function getAllEvents() {
         try {
-            return response()->json(Event::with(['eventType', 'school', 'barangay', 'cso'])->get(), 200);
+            return response()->json(Event::whereHas('eventType', function ($query) {
+                $query->whereIn('name', ['CSO', 'School', 'Community']);
+            })->with(['eventType', 'school', 'barangay'])->get(), 200);
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()], 500);
         }

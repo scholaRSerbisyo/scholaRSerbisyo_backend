@@ -37,6 +37,7 @@ Route::prefix('/school')->group(function () {
 Route::prefix('/baranggay')->group(function () {
     Route::post('/create', [BaranggayController::class, 'createBaranggay']);
     Route::get('/getbaranggays', [BaranggayController::class, 'getAllBaranggays'])->middleware(['auth:sanctum']);
+    Route::get('/baranggays/{id}', [BaranggayController::class, 'getBaranggayWithEvents'])->middleware(['auth:sanctum']);
 });
 
 Route::prefix('/scholartype')->group(function () {
