@@ -67,9 +67,31 @@ class EventController extends Controller
 
     public function getAllEvents() {
         try {
-            return response()->json(Event::whereHas('eventType', function ($query) {
+            $events = Event::whereHas('eventType', function ($query) {
                 $query->whereIn('name', ['CSO', 'School', 'Community']);
-            })->with(['eventType', 'school', 'barangay'])->get(), 200);
+            })->with(['eventType', 'school', 'barangay'])->get();
+
+            $formattedEvents = $events->map(function ($event) {
+                return [
+                    'event_id' => $event->event_id,
+                    'event_image_uuid' => $event->event_image_uuid,
+                    'event_name' => $event->event_name,
+                    'description' => $event->description,
+                    'date' => $event->formatted_date,
+                    'time_from' => $event->formatted_time_from,
+                    'time_to' => $event->formatted_time_to,
+                    'location' => $event->location,
+                    'status' => $event->status,
+                    'admin_id' => $event->admin_id,
+                    'event_type' => $event->eventType,
+                    'school' => $event->school,
+                    'barangay' => $event->barangay,
+                    'created_at' => $event->created_at->format('Y-m-d H:i:s'),
+                    'updated_at' => $event->updated_at->format('Y-m-d H:i:s'),
+                ];
+            });
+
+            return response()->json($formattedEvents, 200);
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()], 500);
         }

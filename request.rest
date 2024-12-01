@@ -32,8 +32,8 @@ POST http://localhost:8000/api/baranggay/create HTTP/1.1
 Content-Type: application/json
 
 {
-    "baranggay_name": "lapasan",
-    "address": "lapasan"
+    "baranggay_name": "Carmen",
+    "address": "Carmen"
 }
 
 ######
@@ -51,7 +51,7 @@ POST http://localhost:8000/api/scholartype/create HTTP/1.1
 Content-Type: application/json
 
 {
-    "scholar_type_name": "coordinator"
+    "scholar_type_name": "leader"
 }
 
 ######
@@ -74,12 +74,30 @@ Content-Type: application/json
 
 ######
 
+POST http://localhost:8000/api/admintype/create HTTP/1.1
+Content-Type: application/json
+
+{
+    "admin_type_name": "School"
+}
+
+######
+
+POST http://localhost:8000/api/admintype/create HTTP/1.1
+Content-Type: application/json
+
+{
+    "admin_type_name": "Community"
+}
+
+######
+
 POST http://localhost:8000/api/user/createuser HTTP/1.1
 Content-Type: application/json
 Accept: application/json
 
 {
-    "email": "craususrhyle@gmail.com",
+    "email": "craususrhyleadmincommunity@gmail.com",
     "password": "rairudesu"
 }
 
@@ -90,14 +108,14 @@ Content-Type: application/json
 Accept: application/json
 
 {
-    "firstname": "rairu",
-    "lastname": "crausus",
+    "firstname": "drae",
+    "lastname": "cole",
     "age": "23",
-    "address": "basta",
+    "address": "dddd",
     "mobilenumber": "09460728560",
     "yearlevel": "4th year",
-    "scholar_type_id": 2,
-    "user_id": 2,
+    "scholar_type_id": 1,
+    "user_id": 8,
     "school_id": 1,
     "baranggay_id": 1
 }
@@ -110,13 +128,13 @@ Accept: application/json
 
 {
     "admin_name": "Admin Ben",
-    "admin_type_id": 1,
-    "user_id": 1
+    "admin_type_id": 4,
+    "user_id": 11
 }
 
 ######
 
-POST http://localhost:8000/api/user/admin/login HTTP/1.1
+POST http://192.168.8.166:8000/api/user/admin/login HTTP/1.1
 Content-Type: application/json
 Accept: application/json
 

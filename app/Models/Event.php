@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Event extends Model
 {
@@ -25,10 +26,27 @@ class Event extends Model
     ];
 
     protected $casts = [
-        'date' => 'date',
-        'time_from' => 'datetime',
-        'time_to' => 'datetime',
+        'date' => 'date:Y-m-d',
+        'time_from' => 'datetime:H:i',
+        'time_to' => 'datetime:H:i',
     ];
+
+    protected $appends = ['formatted_date', 'formatted_time_from', 'formatted_time_to'];
+
+    public function getFormattedDateAttribute()
+    {
+        return $this->date->format('Y-m-d');
+    }
+
+    public function getFormattedTimeFromAttribute()
+    {
+        return Carbon::parse($this->time_from)->format('H:i');
+    }
+
+    public function getFormattedTimeToAttribute()
+    {
+        return Carbon::parse($this->time_to)->format('H:i');
+    }
 
     public function admin()
     {
