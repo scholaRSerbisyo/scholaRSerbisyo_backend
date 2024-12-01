@@ -33,7 +33,11 @@ Content-Type: application/json
 
 {
     "baranggay_name": "Carmen",
+<<<<<<< HEAD
     "address": "Carmen"
+=======
+    "address": "carmen"
+>>>>>>> 5f44ad4e39cae813027c968f3ee942f5c9a19b57
 }
 
 ######
@@ -42,7 +46,7 @@ POST http://localhost:8000/api/scholartype/create HTTP/1.1
 Content-Type: application/json
 
 {
-    "scholar_type_name": "ordinary"
+    "scholar_type_name": "scholar"
 }
 
 ######
@@ -51,7 +55,11 @@ POST http://localhost:8000/api/scholartype/create HTTP/1.1
 Content-Type: application/json
 
 {
+<<<<<<< HEAD
     "scholar_type_name": "leader"
+=======
+    "scholar_type_name": "scholar leader"
+>>>>>>> 5f44ad4e39cae813027c968f3ee942f5c9a19b57
 }
 
 ######
@@ -97,8 +105,13 @@ Content-Type: application/json
 Accept: application/json
 
 {
+<<<<<<< HEAD
     "email": "craususrhyleadmincommunity@gmail.com",
     "password": "rairudesu"
+=======
+    "email": "earl@gmail.com",
+    "password": "earldesu"
+>>>>>>> 5f44ad4e39cae813027c968f3ee942f5c9a19b57
 }
 
 ######
@@ -114,8 +127,13 @@ Accept: application/json
     "address": "dddd",
     "mobilenumber": "09460728560",
     "yearlevel": "4th year",
+<<<<<<< HEAD
     "scholar_type_id": 1,
     "user_id": 8,
+=======
+    "scholar_type_id": 2,
+    "user_id": 1,
+>>>>>>> 5f44ad4e39cae813027c968f3ee942f5c9a19b57
     "school_id": 1,
     "baranggay_id": 1
 }
