@@ -17,6 +17,7 @@ Route::prefix('/user')->group(function () {
     Route::post('/admin/login', [AuthController::class, 'loginAdminAccount']);
     Route::post('/login', [AuthController::class, 'loginAccount']);
     Route::get('/me', [AuthController::class, 'showCurrentAdmin'])->middleware(['auth:sanctum']);
+    Route::get('/scholar/me/show', [AuthController::class, 'showCurrentScholar'])->middleware(['auth:sanctum']);
     Route::post('/logout', [AuthController::class, 'logoutAccount'])->middleware(['auth:sanctum']);
     Route::get('/users', [AuthController::class,'showAllUsers']);
     Route::get('/admins', [AuthController::class,'showAdmins'])->middleware(['auth:sanctum']);
@@ -55,5 +56,15 @@ Route::prefix('/events')->group(function () {
     Route::get('/getcsoevents', [EventController::class, 'getCSOEvents'])->middleware(['auth:sanctum']);
     Route::get('/getschoolevents', [EventController::class, 'getSchoolEvents'])->middleware(['auth:sanctum']);
     Route::get('/geteventtypes', [EventController::class, 'getEventTypes'])->middleware(['auth:sanctum']);
-    Route::put('/updateevent', [EventController::class, 'updateEvent'])->middleware(['auth:sanctumr']);
+    Route::put('/updateevent/{id}', [EventController::class, 'updateEvent'])->middleware(['auth:sanctum']);
+    Route::get('/getevent/{id}', [EventController::class, 'getEventById'])->middleware(['auth:sanctum']);
+    Route::post('/submit-time-in', [EventController::class, 'storeTimeInSubmission'])->middleware(['auth:sanctum']);
+    Route::post('/submit-time-out', [EventController::class, 'updateTimeOutSubmission'])->middleware(['auth:sanctum']);
+    Route::get('/check-submission/{id}', [EventController::class, 'checkExistingSubmission'])->middleware(['auth:sanctum']);
+    Route::get('/scholar/submissions', [EventController::class, 'getScholarSubmissions'])->middleware('auth:sanctum');
+    Route::get('/scholar/submission-images', [EventController::class, 'getScholarSubmissionImages'])->middleware('auth:sanctum');
+    Route::get('/{id}/completed-submissions', [EventController::class, 'getCompletedSubmissions'])->middleware('auth:sanctum');
+    Route::post('/submissions/{id}/accept', [EventController::class, 'acceptSubmission'])->middleware('auth:sanctum');
+    Route::post('/submissions/{id}/decline', [EventController::class, 'declineSubmission'])->middleware('auth:sanctum');
+    Route::get('/scholars/return-service-count', [EventController::class, 'getScholarsWithReturnServiceCount'])->middleware('auth:sanctum');
 });

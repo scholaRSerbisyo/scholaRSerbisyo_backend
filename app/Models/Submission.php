@@ -8,11 +8,15 @@ class Submission extends Model
 {
     protected $primaryKey = 'submission_id';
 
+    protected $table = 'submissions';
+
     protected $fillable = [
         'event_id',
         'scholar_id',
         'time_in_image_uuid',
+        'time_in_location',
         'time_out_image_uuid',
+        'time_out_location',
         'time_in',
         'time_out',
     ];

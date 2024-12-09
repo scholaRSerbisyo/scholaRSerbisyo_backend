@@ -124,23 +124,23 @@ class AuthController extends Controller
     public function loginAccount(LoginRequest $request) {
         try {
             $credentials = $request->only(['email', 'password']);
-            $user = User::where('email', $credentials['email'])->first();
+            $scholar = User::where('email', $credentials['email'])->first();
 
-            if (!$user) {
+            if (!$scholar) {
                 return response(['message' => "Account doesn't exist"], 404);
             }
 
-            if (!Hash::check($credentials['password'], $user->password)) {
+            if (!Hash::check($credentials['password'], $scholar->password)) {
                 return response(['message' => "Incorrect password"], 401);
             }
 
-            if ($user->role_id === 1) {
+            if ($scholar->role_id === 1) {
                 return response(['message' => 'Scholars can only access this!'], 400);
             }
 
-            $token = $user->createToken('Personal Access Token')->plainTextToken;
+            $token = $scholar->createToken('Personal Access Token')->plainTextToken;
 
-            return response(['token' => $token, 'role' => $user->role_id], 200);
+            return response(['token' => $token, 'role' => $scholar->scholar_type_id], 200);
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()], 500);
         }
@@ -160,6 +160,15 @@ class AuthController extends Controller
     {
         try {
             return response()->json($request->user()->load('admin'), 200);
+        } catch (\Throwable $th) {
+            return response(['message' => $th->getMessage()], 500);
+        }
+    }
+
+    public function showCurrentScholar(Request $request)
+    {
+        try {
+            return response()->json($request->user()->load('scholar'), 200);
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()], 500);
         }

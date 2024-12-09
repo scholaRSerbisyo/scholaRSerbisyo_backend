@@ -22,9 +22,14 @@ class SubmissionStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image_uuid' => 'required|string',
-            'time_in' => 'required|time',
-            'scholar_id' => 'required|exists:scholars,scholar_id'
+            'event_id' => 'required|exists:events,event_id',
+            'scholar_id' => 'required|exists:scholars,scholar_id',
+            'time_in_image_uuid' => 'required|string',
+            'time_in_location' => 'required|string',
+            'time_out_image_uuid' => 'required|string',
+            'time_out_location' => 'required|string',
+            'time_in' => 'required|date_format:H:i',
+            'time_out' => 'required|date_format:H:i|after:time_from',
         ];
     }
 }

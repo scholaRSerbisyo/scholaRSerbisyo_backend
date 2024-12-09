@@ -16,7 +16,9 @@ return new class extends Migration
             $table->unsignedBigInteger('event_id');
             $table->unsignedBigInteger('scholar_id');
             $table->string('time_in_image_uuid')->nullable();
+            $table->string('time_in_location')->nullable();
             $table->string('time_out_image_uuid')->nullable();
+            $table->string('time_out_location')->nullable();
             $table->dateTime('time_in')->nullable();
             $table->dateTime('time_out')->nullable();
             $table->timestamps();

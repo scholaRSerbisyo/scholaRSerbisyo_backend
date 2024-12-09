@@ -56,7 +56,7 @@ class User extends Authenticatable
     }
 
     public function scholar() {
-        return $this->hasOne('App\Models\Scholar', 'scholar_id');
+        return $this->hasOne('App\Models\Scholar', 'user_id');
     }
 
     public function admin()

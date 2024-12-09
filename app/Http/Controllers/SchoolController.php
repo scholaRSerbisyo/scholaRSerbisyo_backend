@@ -35,7 +35,7 @@ class SchoolController extends Controller
                 unset($school->events);
                 return $school;
             });
-
+    
             return response()->json($schoolsWithEventCounts);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], 500);

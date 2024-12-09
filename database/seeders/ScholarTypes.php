@@ -4,9 +4,9 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\AdminType;
+use App\Models\ScholarType;
 
-class AdminTypes extends Seeder
+class ScholarTypes extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,14 +14,12 @@ class AdminTypes extends Seeder
     public function run(): void
     {
         $types = [
-            ['admin_type_name' => 'developer'],
-            ['admin_type_name' => 'CSO'],
-            ['admin_type_name' => 'School'],
-            ['admin_type_name' => 'Community'],
+            ['scholar_type_name' => 'Ordinary'],
+            ['scholar_type_name' => 'Leader'],
         ];
 
         foreach ($types as $type) {
-            AdminType::create($type);
+            ScholarType::create($type);
         }
     }
 }

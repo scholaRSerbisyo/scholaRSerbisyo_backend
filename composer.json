@@ -9,7 +9,8 @@
         "aws/aws-sdk-php": "^3.325",
         "laravel/framework": "^11.9",
         "laravel/sanctum": "^4.0",
-        "laravel/tinker": "^2.9"
+        "laravel/tinker": "^2.9",
+        "nesbot/carbon": "^3.8"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

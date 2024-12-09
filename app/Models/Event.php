@@ -68,14 +68,14 @@ class Event extends Model
         return $this->belongsTo(Baranggay::class, 'baranggay_id');
     }
 
-    public function attendances()
+    public function submissions()
     {
-        // return $this->hasMany(EventAttendance::class, 'event_id');
+        return $this->hasMany(Submission::class, 'event_id');
     }
 
-    public function attendees()
+    public function scholars()
     {
-        return $this->belongsToMany(Scholar::class, 'event_attendances', 'event_id', 'scholar_id')
+        return $this->belongsToMany(Scholar::class, 'submissions', 'event_id', 'scholar_id')
                     ->withPivot('time_in_image_uuid', 'time_out_image_uuid', 'time_in', 'time_out')
                     ->withTimestamps();
     }

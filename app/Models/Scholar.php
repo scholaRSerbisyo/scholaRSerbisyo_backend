@@ -56,7 +56,7 @@ class Scholar extends User
         return $this->hasMany(Submission::class, 'scholar_id');
     }
 
-    public function attendedEvents()
+    public function events()
     {
         return $this->belongsToMany(Event::class, 'submissions', 'scholar_id', 'event_id')
                     ->withPivot('time_in_image_uuid', 'time_out_image_uuid', 'time_in', 'time_out')
@@ -66,6 +66,27 @@ class Scholar extends User
     public function getFullNameAttribute()
     {
         return "{$this->firstname} {$this->lastname}";
+    }
+
+    public function returnServices()
+    {
+        return $this->hasMany(ReturnService::class, 'return_service_id');
+    }
+
+    public function getCurrentYearReturnServiceStatus()
+    {
+        $currentYear = date('Y');
+        $returnServices = $this->returnServices()
+            ->where('year', $currentYear)
+            ->get();
+
+        $acceptedSubmissions = $returnServices->count();
+        $status = $acceptedSubmissions >= 5 ? 'complete' : 'incomplete';
+
+        return [
+            'acceptedSubmissions' => $acceptedSubmissions,
+            'status' => $status
+        ];
     }
 }
 

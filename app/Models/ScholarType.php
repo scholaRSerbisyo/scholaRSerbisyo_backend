@@ -12,12 +12,14 @@ class ScholarType extends Model
 
     protected $table = 'scholar_types';
 
+    protected $primaryKey = 'scholar_type_id';
+
     protected $fillable = [
         'scholar_type_name',
         'scholar_type_description'
     ];
 
     public function scholar() {
-        return $this->hasMany('App\Models\Scholar');
+        return $this->hasMany('App\Models\Scholar', 'scholar_id');
     }
 }
