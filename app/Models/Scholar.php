@@ -15,6 +15,7 @@ class Scholar extends User
     protected $primaryKey = 'scholar_id';
 
     protected $fillable = [
+        'profile_image_uuid',
         'firstname',
         'lastname',
         'age',

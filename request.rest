@@ -138,12 +138,12 @@ Accept: application/json
 
 ######
 
-POST http://192.168.8.166:8000/api/user/login HTTP/1.1
+POST http://localhost:8000/api/user/admin/login HTTP/1.1
 Content-Type: application/json
 Accept: application/json
 
 {
-    "email": "craususrhyle@gmail.com",
+    "email": "craususrhyleadmin@gmail.com",
     "password": "rairudesu"
 }
 
@@ -151,4 +151,11 @@ Accept: application/json
 
 GET http://localhost:8000/api/user/scholar/me/show HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer 1|y5Z8yL1nOcbshq1biRoRp5XrRyDQSSBtaAix5Rms07d7c6ae
+Authorization: Bearer 59|BtuzcQyTnwgbeKVRpBbR9OoAtHa8xXP7zOfprBBXcc379611
+
+######
+
+GET http://localhost:8000/api/events/scholars/return-service-count HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer 78|sx64xhmbswcAtpNGnRrOwnReajgceYd6aTJCH0KT972a9075

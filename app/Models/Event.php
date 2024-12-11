@@ -48,11 +48,6 @@ class Event extends Model
         return Carbon::parse($this->time_to)->format('H:i');
     }
 
-    public function admin()
-    {
-        return $this->belongsTo(Admin::class, 'admin_id');
-    }
-
     public function eventType()
     {
         return $this->belongsTo(EventType::class, 'event_type_id');

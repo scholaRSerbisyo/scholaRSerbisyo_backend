@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        
+        Schema::table('scholars', function (Blueprint $table) {
+            $table->string('profile_image_uuid')->nullable()->after('scholar_id');
+        });
     }
 
     /**
@@ -19,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        
+        Schema::table('scholars', function (Blueprint $table) {
+            $table->dropColumn('profile_image_uuid');
+        });
     }
 };

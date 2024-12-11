@@ -7,6 +7,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScholarTypeController;
 use App\Http\Controllers\AdminTypeController;
 use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\SendPushNotification;
 use Illuminate\Support\Facades\Route;
 
 
@@ -67,4 +68,6 @@ Route::prefix('/events')->group(function () {
     Route::post('/submissions/{id}/accept', [EventController::class, 'acceptSubmission'])->middleware('auth:sanctum');
     Route::post('/submissions/{id}/decline', [EventController::class, 'declineSubmission'])->middleware('auth:sanctum');
     Route::get('/scholars/return-service-count', [EventController::class, 'getScholarsWithReturnServiceCount'])->middleware('auth:sanctum');
+    Route::post('/send-push-notification', [SendPushNotification::class, 'sendPushNotification'])->middleware(['auth:sanctum']);
+    Route::get('/scholars/{id}', [EventController::class, 'getScholarEvents'])->middleware(['auth:sanctum']);
 });

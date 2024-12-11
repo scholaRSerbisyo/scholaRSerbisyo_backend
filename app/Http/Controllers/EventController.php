@@ -248,6 +248,35 @@ class EventController extends Controller
         }
     }
 
+    public function getScholarEvents($scholarId)
+    {
+        $scholar = Scholar::findOrFail($scholarId);
+        
+        $events = ReturnService::where('scholar_id', $scholarId)
+            ->with(['event' => function ($query) {
+                $query->select('event_id', 'event_name', 'event_type_id', 'date', 'time_from', 'time_to', 'location', 'description', 'event_image_uuid', 'status')
+                    ->with(['eventType:event_type_id,name']);
+            }])
+            ->get()
+            ->map(function ($returnService) {
+                $event = $returnService->event;
+                $event->completed_at = $returnService->completed_at;
+                $event->year = $returnService->year;
+                $event->event_type_name = $event->eventType->name;
+                unset($event->eventType); // Remove the eventType relationship from the response
+                return $event;
+            });
+
+        return response()->json([
+            'scholar' => [
+                'id' => $scholar->scholar_id,
+                'firstname' => $scholar->firstname,
+                'lastname' => $scholar->lastname,
+            ],
+            'events' => $events
+        ]);
+    }
+
     public function storeTimeInSubmission(TimeInSubmissionRequest $request)
     {
         try {
