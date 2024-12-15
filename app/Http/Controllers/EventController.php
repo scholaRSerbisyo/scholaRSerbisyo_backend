@@ -17,44 +17,61 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\SendPushNotification;
 
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class EventController extends Controller
 {
-    private $r2Service;
+    protected $r2Service;
+    protected $sendPushNotification;
 
-    public function __construct(CloudflareR2Service $r2Service)
+    public function __construct(CloudflareR2Service $r2Service, SendPushNotification $sendPushNotification)
     {
         $this->r2Service = $r2Service;
+        $this->sendPushNotification = $sendPushNotification;
     }
 
-    public function createEvent(EventStoreRequest $request) {
+    public function createEvent(EventStoreRequest $request)
+    {
         try {
             $eventData = $request->validated();
-            
-            // Check if an event already exists on the given date
-            $existingEvent = Event::whereDate('date', $eventData['date'])->first();
-            
-            if ($existingEvent) {
-                return response([
-                    'message' => 'There is an Event that already assigned to this date',
-                    'existing_event' => $existingEvent
-                ], 422);
-            }
     
             $eventData['status'] = $this->determineEventStatus($eventData['date']);
             $event = Event::create($eventData);
     
             if ($event) {
                 $this->r2Service->uploadFileToBucket($request->input('image'), $eventData['event_image_uuid']);
-                return response(['message' => 'Event created successfully', 'event' => $event], 201);
+                
+                // Prepare notification data
+                $notificationData = [
+                    'event_id' => $event->event_id,
+                    'event_name' => $event->event_name,
+                    'event_type_name' => $event->eventType->event_type_name, // Assuming there's a relationship to EventType
+                    'description' => $event->description,
+                    'date' => $event->date,
+                    'time_from' => $event->time_from,
+                    'time_to' => $event->time_to,
+                    'event_image_uuid' => $event->event_image_uuid,
+                ];
+                
+                // Send broadcast notification
+                $notificationResult = $this->sendPushNotification->sendBroadcastNotification(new Request($notificationData));
+                
+                Log::info('Event created successfully', ['event_id' => $event->event_id, 'notification_result' => $notificationResult]);
+                return response([
+                    'message' => 'Event created successfully',
+                    'event' => $event,
+                    'notification_result' => $notificationResult
+                ], 201);
             }
         } catch (\Throwable $th) {
+            Log::error('Error creating event', ['error' => $th->getMessage()]);
             return response(['message' => $th->getMessage()], 500);
         }
     }
+
 
     public function getCompletedSubmissions($eventId)
     {
@@ -223,13 +240,15 @@ class EventController extends Controller
                     'firstname' => $scholar->firstname,
                     'lastname' => $scholar->lastname,
                     'mobilenumber' => $scholar->mobilenumber,
-                    'age' => $scholar->age,
+                    'age' => (string) $scholar->age,
                     'yearLevel' => $scholar->yearlevel,
                     'scholarType' => $scholar->scholarType->scholar_type_name,
                     'school' => [
+                        'id' => $scholar->school->school_id,
                         'name' => $scholar->school->school_name,
                     ],
                     'barangay' => [
+                        'id' => $scholar->baranggay->baranggay_id,
                         'name' => $scholar->baranggay->baranggay_name,
                     ],
                     'returnServiceCount' => (int) $scholar->return_service_count
@@ -245,6 +264,58 @@ class EventController extends Controller
                 'exception' => $e
             ]);
             return response()->json(['message' => 'An error occurred while fetching scholars with return service count: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function getScholarWithReturnServiceCount($scholarId)
+    {
+        try {
+            $scholar = Scholar::with(['user', 'school', 'baranggay', 'scholarType'])
+                ->select('scholars.*')
+                ->where('scholars.scholar_id', $scholarId)
+                ->first();
+
+            if (!$scholar) {
+                return response()->json(['message' => 'Scholar not found'], 404);
+            }
+
+            $returnServices = ReturnService::where('scholar_id', $scholarId)
+                ->select('year', DB::raw('COUNT(*) as count'))
+                ->groupBy('year')
+                ->orderBy('year', 'desc')
+                ->get();
+
+            $formattedScholar = [
+                'id' => $scholar->scholar_id,
+                'firstname' => $scholar->firstname,
+                'lastname' => $scholar->lastname,
+                'mobilenumber' => $scholar->mobilenumber,
+                'age' => $scholar->age,
+                'yearLevel' => $scholar->yearlevel,
+                'scholarType' => $scholar->scholarType->scholar_type_name,
+                'school' => [
+                    'name' => $scholar->school->school_name,
+                ],
+                'barangay' => [
+                    'name' => $scholar->baranggay->baranggay_name,
+                ],
+                'yearlyReturnServices' => $returnServices->map(function ($service) {
+                    return [
+                        'year' => $service->year,
+                        'count' => $service->count,
+                    ];
+                }),
+            ];
+
+            return response()->json([
+                'scholar' => $formattedScholar,
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Error in getScholarWithReturnServiceCount: ' . $e->getMessage(), [
+                'exception' => $e,
+                'scholar_id' => $scholarId
+            ]);
+            return response()->json(['message' => 'An error occurred while fetching scholar with return service count: ' . $e->getMessage()], 500);
         }
     }
 
@@ -394,19 +465,6 @@ class EventController extends Controller
         try {
             $event = Event::findOrFail($id);
             $eventData = $request->validated();
-
-            // Check if the date is being changed
-            if ($eventData['date'] !== $event->date) {
-                // Check if any event exists on the new date
-                $existingEvent = Event::where('date', $eventData['date'])->first();
-                
-                if ($existingEvent) {
-                    return response([
-                        'message' => 'There is already an event assigned to this date',
-                        'existing_event' => $existingEvent
-                    ], 422);
-                }
-            }
 
             $eventData['status'] = $this->determineEventStatus($eventData['date']);
 

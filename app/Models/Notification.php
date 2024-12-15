@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Scholar;
 
 class Notification extends Model
 {
@@ -15,11 +16,10 @@ class Notification extends Model
 
     protected $fillable = [
         'event_id',
-        'date'
-    ];
-
-    protected $casts = [
-        'date' => 'datetime:Y-m-d',
+        'event_name',
+        'event_type_name',
+        'description',
+        'event_image_uuid',
     ];
 
     public function event()
@@ -27,8 +27,8 @@ class Notification extends Model
         return $this->belongsTo('App\Models\Event', 'event_id');
     }
 
-    public function notification() 
+    public function scholars() 
     {
-        return $this->hasOne('App\Models\Notification', 'notification_id');
+        return $this->hasMany(Scholar::class);
     }
 }

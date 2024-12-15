@@ -25,7 +25,8 @@ class Scholar extends User
         'scholar_type_id',
         'user_id',
         'school_id',
-        'baranggay_id'
+        'baranggay_id',
+        'push_token'
     ];
 
     protected $casts = [

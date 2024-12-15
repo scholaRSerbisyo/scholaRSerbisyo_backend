@@ -121,28 +121,63 @@ class AuthController extends Controller
     }
     
 
-    public function loginAccount(LoginRequest $request) {
-        try {
-            $credentials = $request->only(['email', 'password']);
-            $scholar = User::where('email', $credentials['email'])->first();
+    public function loginAccount(LoginRequest $request)
+    {
+        $credentials = $request->validated();
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            $scholar = Scholar::where('user_id', $user->user_id)->first();
 
             if (!$scholar) {
-                return response(['message' => "Account doesn't exist"], 404);
+                return response()->json([
+                    'message' => 'Scholar not found for this user',
+                ], 404);
             }
 
-            if (!Hash::check($credentials['password'], $scholar->password)) {
-                return response(['message' => "Incorrect password"], 401);
-            }
+            $token = $user->createToken('auth_token')->plainTextToken;
 
-            if ($scholar->role_id === 1) {
-                return response(['message' => 'Scholars can only access this!'], 400);
-            }
+            return response()->json([
+                'token' => $token,
+                'scholar_id' => $scholar->scholar_id,
+                'role' => $scholar->scholar_type_id?? null,
+            ]);
+        }
 
-            $token = $scholar->createToken('Personal Access Token')->plainTextToken;
+        return response()->json([
+            'message' => 'Invalid credentials',
+        ], 401);
+    }
+    
+    public function updateScholarInfo(Request $request, $scholar_id)
+    {
+        try {
+            $scholar = Scholar::findOrFail($scholar_id);
 
-            return response(['token' => $token, 'role' => $scholar->scholar_type_id], 200);
-        } catch (\Throwable $th) {
-            return response(['message' => $th->getMessage()], 500);
+            $validatedData = $request->validate([
+                'firstname' => 'sometimes|required|string|max:255',
+                'lastname' => 'sometimes|required|string|max:255',
+                'age' => 'sometimes|required|string',
+                'address' => 'sometimes|required|string|max:255',
+                'mobilenumber' => 'sometimes|required|string|max:20',
+                'yearlevel' => 'sometimes|required|string|max:50',
+                'scholar_type_id' => 'sometimes|required|exists:scholar_types,scholar_type_id',
+                'school_id' => 'sometimes|required|exists:schools,school_id',
+                'baranggay_id' => 'sometimes|required|exists:baranggays,baranggay_id',
+            ]);
+
+            $scholar->update($validatedData);
+
+            return response()->json([
+                'message' => 'Scholar information updated successfully',
+                'scholar' => $scholar
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['message' => 'Scholar not found'], 404);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['message' => 'Validation failed', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'An error occurred while updating scholar information', 'error' => $e->getMessage()], 500);
         }
     }
 

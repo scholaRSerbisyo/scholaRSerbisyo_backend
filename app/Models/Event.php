@@ -79,5 +79,9 @@ class Event extends Model
     {
         return $this->eventType->name === 'CSO';
     }
+
+    public function comments() {
+        return $this->hasMany(Comment::class, 'event_id');
+    }
 }
 
