@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('return_services', function (Blueprint $table) {
             $table->id('return_service_id');
-            $table->foreignId('scholar_id')->constrained('scholars', 'scholar_id');
+            $table->string('scholar_id', 7);
             $table->foreignId('submission_id')->constrained('submissions', 'submission_id');
             $table->foreignId('event_id')->constrained('events', 'event_id');
             $table->year('year');
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
+
+            $table->foreign('scholar_id')->references('scholar_id')->on('scholars')->onDelete('cascade');
         });
     }
 
@@ -30,3 +32,4 @@ return new class extends Migration
         Schema::dropIfExists('return_services');
     }
 };
+

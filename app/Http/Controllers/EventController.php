@@ -140,6 +140,8 @@ class EventController extends Controller
     public function acceptSubmission($submissionId)
     {
         try {
+            DB::beginTransaction();
+
             $submission = Submission::with(['scholar', 'event'])->findOrFail($submissionId);
 
             $returnService = ReturnService::create([
@@ -150,28 +152,42 @@ class EventController extends Controller
                 'completed_at' => now(),
             ]);
 
-            $formattedReturnService = [
-                'id' => $returnService->return_service_id,
-                'firstname' => $submission->scholar->firstname,
-                'lastname' => $submission->scholar->lastname,
-                'submission' => [
-                    'id' => $submission->submission_id,
-                    'time_in' => $submission->time_in,
-                    'time_out' => $submission->time_out,
-                ],
-                'event' => [
-                    'id' => $submission->event->event_id,
-                    'name' => $submission->event->event_name,
-                    'date' => $submission->event->date,
-                ],
-                'completed_at' => $returnService->completed_at->toDateTimeString(),
-            ];
+            if ($returnService) {
+                // Update submission status only if ReturnService is created successfully
+                Submission::where('submission_id', $submissionId)->update(['status' => 'accepted']);
+                
+                // Refresh the submission to get the updated status
+                $submission->refresh();
 
-            return response()->json([
-                'message' => 'Submission accepted successfully',
-                'returnService' => $formattedReturnService
-            ]);
+                $formattedReturnService = [
+                    'id' => $returnService->return_service_id,
+                    'firstname' => $submission->scholar->firstname,
+                    'lastname' => $submission->scholar->lastname,
+                    'submission' => [
+                        'id' => $submission->submission_id,
+                        'time_in' => $submission->time_in,
+                        'time_out' => $submission->time_out,
+                        'status' => $submission->status, // Include updated status in the response
+                    ],
+                    'event' => [
+                        'id' => $submission->event->event_id,
+                        'name' => $submission->event->event_name,
+                        'date' => $submission->event->date,
+                    ],
+                    'completed_at' => $returnService->completed_at->toDateTimeString(),
+                ];
+
+                DB::commit();
+
+                return response()->json([
+                    'message' => 'Submission accepted successfully',
+                    'returnService' => $formattedReturnService
+                ]);
+            } else {
+                throw new \Exception('Failed to create ReturnService');
+            }
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error in acceptSubmission: ' . $e->getMessage(), [
                 'submission_id' => $submissionId,
                 'exception' => $e
@@ -183,6 +199,8 @@ class EventController extends Controller
     public function declineSubmission($submissionId)
     {
         try {
+            DB::beginTransaction();
+
             $submission = Submission::with(['scholar', 'event'])->findOrFail($submissionId);
 
             $returnService = ReturnService::create([
@@ -192,27 +210,41 @@ class EventController extends Controller
                 'year' => date('Y'),
             ]);
 
-            $formattedReturnService = [
-                'id' => $returnService->return_service_id,
-                'firstname' => $submission->scholar->firstname,
-                'lastname' => $submission->scholar->lastname,
-                'submission' => [
-                    'id' => $submission->submission_id,
-                    'time_in' => $submission->time_in,
-                    'time_out' => $submission->time_out,
-                ],
-                'event' => [
-                    'id' => $submission->event->event_id,
-                    'name' => $submission->event->event_name,
-                    'date' => $submission->event->date,
-                ],
-            ];
+            if ($returnService) {
+                // Update submission status to "declined"
+                Submission::where('submission_id', $submissionId)->update(['status' => 'declined']);
+                
+                // Refresh the submission to get the updated status
+                $submission->refresh();
 
-            return response()->json([
-                'message' => 'Submission declined successfully',
-                'returnService' => $formattedReturnService
-            ]);
+                $formattedReturnService = [
+                    'id' => $returnService->return_service_id,
+                    'firstname' => $submission->scholar->firstname,
+                    'lastname' => $submission->scholar->lastname,
+                    'submission' => [
+                        'id' => $submission->submission_id,
+                        'time_in' => $submission->time_in,
+                        'time_out' => $submission->time_out,
+                        'status' => $submission->status, // Include updated status in the response
+                    ],
+                    'event' => [
+                        'id' => $submission->event->event_id,
+                        'name' => $submission->event->event_name,
+                        'date' => $submission->event->date,
+                    ],
+                ];
+
+                DB::commit();
+
+                return response()->json([
+                    'message' => 'Submission declined successfully',
+                    'returnService' => $formattedReturnService
+                ]);
+            } else {
+                throw new \Exception('Failed to create ReturnService');
+            }
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error in declineSubmission: ' . $e->getMessage(), [
                 'submission_id' => $submissionId,
                 'exception' => $e
@@ -362,6 +394,7 @@ class EventController extends Controller
                     'time_in' => $submissionData['time_in'],
                     'time_in_image_uuid' => $submissionData['time_in_image_uuid'],
                     'description' => $submissionData['description'] ?? null,
+                    'status' => 'pending'
                 ]);
 
                 // Upload time_in image
@@ -530,6 +563,9 @@ class EventController extends Controller
                         'location' => $event->location,
                         'status' => $event->status,
                         'event_type' => $event->eventType->name,
+                        'event_Type' => [
+                            'name' => $event->eventType->name
+                        ],
                         'school' => $event->school ? $event->school->name : null,
                         'barangay' => $event->barangay ? $event->barangay->name : null,
                     ],
@@ -541,6 +577,7 @@ class EventController extends Controller
                         'time_in_image_uuid' => $submission->time_in_image_uuid,
                         'time_out_image_uuid' => $submission->time_out_image_uuid,
                     ],
+                    'status' => $submission->status
                 ];
             });
 

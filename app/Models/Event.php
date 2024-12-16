@@ -19,7 +19,6 @@ class Event extends Model
         'time_to',
         'location',
         'status',
-        'admin_id',
         'event_type_id',
         'school_id',
         'baranggay_id',

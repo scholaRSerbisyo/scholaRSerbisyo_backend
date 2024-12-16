@@ -19,6 +19,7 @@ class Submission extends Model
         'time_out_location',
         'time_in',
         'time_out',
+        'status'
     ];
 
     protected $casts = [

@@ -18,6 +18,8 @@ Route::prefix('/user')->group(function () {
     Route::post('/createscholar', [AuthController::class, 'createScholarAccount']);
     Route::post('/createadmin', [AuthController::class, 'createAdminAccount']);
     Route::post('/admin/login', [AuthController::class, 'loginAdminAccount']);
+    Route::post('/validate-scholar', [AuthController::class, 'validateScholar']);
+    Route::post('/register-scholar-user', [AuthController::class, 'registerScholarUser']);
     Route::post('/login', [AuthController::class, 'loginAccount']);
     Route::get('/me', [AuthController::class, 'showCurrentAdmin'])->middleware(['auth:sanctum']);
     Route::get('/scholar/me/show', [AuthController::class, 'showCurrentScholar'])->middleware(['auth:sanctum']);

@@ -24,8 +24,10 @@ class ScholarStoreRequest extends FormRequest
         return [
             'firstname' => 'required|string',
             'lastname' => 'required|string',
+            'birthdate' => 'required|date',
             'age' => 'required|string',
-            'address' => 'required|string',
+            'gender' => 'required|in:male,female',
+            'course' => 'required|string',
             'mobilenumber' => 'required|string',
             'yearlevel' => 'required|string',
             'scholar_type_id' => 'required|exists:scholar_types,scholar_type_id',

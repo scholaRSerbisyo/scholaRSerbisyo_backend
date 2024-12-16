@@ -6,36 +6,36 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
         Schema::create('scholars', function (Blueprint $table) {
-            $table->id('scholar_id');
+            $table->string('scholar_id', 7)->primary();
+            $table->uuid('profile_image_uuid')->nullable();
             $table->string('firstname');
             $table->string('lastname');
-            $table->string('age');
-            $table->string('address');
-            $table->string('mobilenumber', 11);
+            $table->date('birthdate');
+            $table->string('gender');
+            $table->string('course');
+            $table->integer('age');
+            $table->string('mobilenumber');
             $table->string('yearlevel');
-            $table->unsignedBigInteger('scholar_type_id')->default(1);
+            $table->unsignedBigInteger('scholar_type_id');
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('school_id');
             $table->unsignedBigInteger('baranggay_id');
+            $table->string('push_token')->nullable();
             $table->timestamps();
-            $table->foreign('scholar_type_id')->references('scholar_type_id')->on('scholar_types')->onDelete('restrict')->onUpdate('cascade');
-            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('restrict')->onUpdate('cascade');
-            $table->foreign('school_id')->references('school_id')->on('schools')->onDelete('restrict')->onUpdate('cascade');
-            $table->foreign('baranggay_id')->references('baranggay_id')->on('baranggays')->onDelete('restrict')->onUpdate('cascade');
+
+            $table->foreign('scholar_type_id')->references('scholar_type_id')->on('scholar_types')->onDelete('cascade');
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('set null');
+            $table->foreign('school_id')->references('school_id')->on('schools')->onDelete('cascade');
+            $table->foreign('baranggay_id')->references('baranggay_id')->on('baranggays')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('scholars');
     }
 };
+

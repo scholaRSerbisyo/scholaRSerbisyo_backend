@@ -30,7 +30,6 @@ class EventStoreRequest extends FormRequest
             'time_to' => 'required|date_format:H:i|after:time_from',
             'location' => 'required|string|max:255',
             'status' => 'required|string|in:upcoming,ongoing,completed',
-            'admin_id' => 'required|exists:admins,admin_id',
             'event_type_id' => 'required|exists:event_types,event_type_id',
             'school_id' => 'required_if:event_type_id,2|exists:schools,school_id',
             'baranggay_id' => 'required_if:event_type_id,3|exists:baranggays,baranggay_id',

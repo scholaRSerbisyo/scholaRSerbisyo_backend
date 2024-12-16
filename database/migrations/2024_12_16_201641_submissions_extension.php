@@ -11,6 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::table('submissions', function (Blueprint $table) {
+            $table->string('status')->after('submission_id');
+        });
     }
 
     /**
@@ -18,5 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('submissions', function (Blueprint $table) {
+            $table->dropColumn('status');
+        });
     }
 };

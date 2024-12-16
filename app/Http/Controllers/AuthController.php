@@ -10,15 +10,139 @@ use App\Http\Requests\UserStoreRequest;
 use App\Models\Admin;
 use App\Models\Scholar;
 use App\Models\User;
+use App\Services\CloudflareR2Service;
 use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    public function __construct() {
+
+    protected $r2Service;
+    protected $sendPushNotification;
+    public function __construct(CloudflareR2Service $r2Service) {
         $this->userModel = new User();
         $this->adminModel = new Admin();
+        $this->r2Service = $r2Service;
+    }
+
+    public function validateScholar(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'lastname' => 'required|string|max:255',
+            'firstname' => 'required|string|max:255',
+            'scholar_id' => 'required|string|max:7'
+        ]);
+
+        // Check if a scholar exists with the given lastname, firstname, and birthdate
+        $scholar = Scholar::where('lastname', $request->lastname)
+                          ->where('firstname', $request->firstname)
+                          ->where('scholar_id', $request->scholar_id)
+                          ->whereNull('user_id')
+                          ->first();
+
+        if (!$scholar) {
+            return response()->json([
+                'message' => 'No unlinked scholar found with the given information.',
+                'exists' => false
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Unlinked scholar found.',
+            'exists' => true,
+            'scholar_id' => $scholar->scholar_id
+        ], 200);
+    }
+
+    public function registerScholarUser(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'scholar_id' => 'required|exists:scholars,scholar_id',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Find the scholar
+            $scholar = Scholar::where('scholar_id', $request->scholar_id)
+                              ->whereNull('user_id')
+                              ->firstOrFail();
+
+            // Create a new user
+            $user = User::create([
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role_id' => 2, // Assuming 2 is the role_id for scholars
+            ]);
+
+            // Link the new user to the existing scholar
+            $scholar->user_id = $user->user_id;
+            $scholar->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Scholar user registered and linked successfully.',
+                'user' => $user,
+                'scholar' => $scholar
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Failed to register scholar user.',
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    public function updateProfilePicture(Request $request, string $id)
+    {
+        try {
+            $scholar = Scholar::findOrFail($id);
+            $scholarData = $request->validated();
+
+            if ($scholar->profile_image_uuid) {
+                $oldImageUuid = $scholar->profile_image_uuid;
+            }
+
+            if ($request->has('image')) {
+                // Generate a new UUID for the image
+                $newImageUuid = (string) Str::uuid();
+                $scholarData['event_image_uuid'] = $newImageUuid;
+
+                // Upload the new image
+                $newImageUrl = $this->r2Service->uploadFileToBucket($request->input('image'), $newImageUuid);
+                
+                if ($newImageUrl) {
+                    $scholarData['image'] = $newImageUrl;
+
+                    // Delete the old image if it exists
+                    if ($oldImageUuid) {
+                        $this->r2Service->deleteFile($oldImageUuid);
+                    }
+                } else {
+                    // If upload fails, don't update the image-related fields
+                    unset($scholarData['event_image_uuid']);
+                    unset($scholarData['image']);
+                }
+            }
+
+            $scholar->update($scholarData);
+
+            return response(['message' => 'Event updated successfully!', 'event' => $scholar], 200);
+        } catch (\Throwable $th) {
+            return response(['message' => $th->getMessage()], 500);
+        }
     }
 
     public function showAdmins() {

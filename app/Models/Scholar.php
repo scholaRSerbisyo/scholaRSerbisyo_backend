@@ -2,24 +2,30 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Scholar extends User
 {
-    use HasApiTokens, Notifiable, HasFactory;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'scholars';
 
     protected $primaryKey = 'scholar_id';
 
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
     protected $fillable = [
         'profile_image_uuid',
         'firstname',
         'lastname',
+        'birthdate',
+        'gender',
+        'course',
         'age',
-        'address',
         'mobilenumber',
         'yearlevel',
         'scholar_type_id',
@@ -31,11 +37,30 @@ class Scholar extends User
 
     protected $casts = [
         'age' => 'integer',
+        'birthdate' => 'date',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->scholar_id = self::generateUniqueId();
+        });
+    }
+
+    private static function generateUniqueId()
+    {
+        do {
+            $id = str_pad(mt_rand(1000000, 9999999), 7, '0', STR_PAD_LEFT);
+        } while (self::where('scholar_id', $id)->exists());
+
+        return $id;
+    }
 
     public function scholarType()
     {
-        return $this->belongsTo(ScholarType::class, 'scholar_type_id');
+        return $this->belongsTo(ScholarType::class, 'scholar_type_id', 'scholar_type_id');
     }
 
     public function user()

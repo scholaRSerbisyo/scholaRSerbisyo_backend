@@ -11,15 +11,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('scholars', function (Blueprint $table) {
-            $table->string('push_token')->nullable();
-        });
     }
 
     public function down()
     {
-        Schema::table('scholars', function (Blueprint $table) {
-            $table->dropColumn('push_token');
-        });
     }
 };

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('submissions', function (Blueprint $table) {
             $table->id('submission_id');
             $table->unsignedBigInteger('event_id');
-            $table->unsignedBigInteger('scholar_id');
+            $table->string('scholar_id', 7);
             $table->string('time_in_image_uuid')->nullable();
             $table->string('time_in_location')->nullable();
             $table->string('time_out_image_uuid')->nullable();
