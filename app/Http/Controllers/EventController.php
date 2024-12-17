@@ -463,35 +463,40 @@ class EventController extends Controller
     }
 
     public function checkExistingSubmission($eventId)
-    {
-        try {
-            $user = auth()->user();
-            $scholar = $user->scholar;
+{
+    try {
+        $user = auth()->user();
+        $scholar = $user->scholar;
 
-            $submission = Submission::where('event_id', $eventId)
-                ->where('scholar_id', $scholar->scholar_id)
-                ->first();
+        $submission = Submission::where('event_id', $eventId)
+            ->where('scholar_id', $scholar->scholar_id)
+            ->first();
 
-            if ($submission) {
-                return response()->json([
-                    'hasSubmission' => true,
-                    'submissionId' => $submission->submission_id
-                ]);
-            } else {
-                return response()->json([
-                    'hasSubmission' => false
-                ]);
-            }
-        } catch (\Exception $e) {
-            Log::error('Error in checkExistingSubmission: ' . $e->getMessage(), [
-                'event_id' => $eventId,
-                'exception' => $e
-            ]);
+        if ($submission) {
             return response()->json([
-                'message' => 'An error occurred while checking for existing submissions.'
-            ], 500);
+                'hasSubmission' => true,
+                'submissionId' => $submission->submission_id,
+                'timeIn' => $submission->time_in,
+                'timeOut' => $submission->time_out
+            ]);
+        } else {
+            return response()->json([
+                'hasSubmission' => false,
+                'timeIn' => null,
+                'timeOut' => null
+            ]);
         }
+    } catch (\Exception $e) {
+        Log::error('Error in checkExistingSubmission: ' . $e->getMessage(), [
+            'event_id' => $eventId,
+            'exception' => $e
+        ]);
+        return response()->json([
+            'message' => 'An error occurred while checking for existing submissions.'
+        ], 500);
     }
+}
+
 
     public function updateEvent(EventUpdateRequest $request, string $id)
     {
