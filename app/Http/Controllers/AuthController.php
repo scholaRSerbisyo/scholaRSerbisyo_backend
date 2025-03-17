@@ -118,7 +118,7 @@ class AuthController extends Controller
             if ($request->has('image')) {
                 // Generate a new UUID for the image
                 $newImageUuid = (string) Str::uuid();
-                $scholarData['event_image_uuid'] = $newImageUuid;
+                $scholarData['profile_image_uuid'] = $newImageUuid;
 
                 // Upload the new image
                 $newImageUrl = $this->r2Service->uploadFileToBucket($request->input('image'), $newImageUuid);
@@ -132,14 +132,14 @@ class AuthController extends Controller
                     }
                 } else {
                     // If upload fails, don't update the image-related fields
-                    unset($scholarData['event_image_uuid']);
+                    unset($scholarData['profile_image_uuid']);
                     unset($scholarData['image']);
                 }
             }
 
             $scholar->update($scholarData);
 
-            return response(['message' => 'Event updated successfully!', 'event' => $scholar], 200);
+            return response(['message' => 'Scholar Profile Image updated successfully!', 'event' => $scholar], 200);
         } catch (\Throwable $th) {
             return response(['message' => $th->getMessage()], 500);
         }
@@ -160,6 +160,37 @@ class AuthController extends Controller
             return response(['message' => $th->getMessage()],500);
         }
     }
+
+    public function getScholarDetails($scholarId)
+{
+    try {
+        $scholar = Scholar::with(['school', 'baranggay'])
+            ->where('scholar_id', $scholarId)
+            ->firstOrFail();
+            
+        return response()->json([
+            'message' => 'Scholar details retrieved successfully',
+            'data' => [
+                'age' => $scholar->age,
+                'gender' => $scholar->gender,
+                'mobilenumber' => $scholar->mobilenumber,
+                'yearlevel' => $scholar->yearlevel,
+                'school_name' => $scholar->school->school_name,
+                'baranggay_name' => $scholar->baranggay()->baranggay_name
+            ]
+        ], 200);
+        
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json([
+            'message' => 'Scholar not found'
+        ], 404);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Failed to retrieve scholar details',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 
     public function showScholarsBySchool(ScholarsBySchoolRequest $request) {
         try {

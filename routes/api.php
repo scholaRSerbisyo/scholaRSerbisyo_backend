@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BaranggayController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventValidationController;
 use App\Http\Controllers\FAQController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScholarTypeController;
@@ -28,7 +29,8 @@ Route::prefix('/user')->group(function () {
     Route::get('/admins', [AuthController::class,'showAdmins'])->middleware(['auth:sanctum']);
     Route::get('/scholars', [AuthController::class,'showScholars'])->middleware(['auth:sanctum']);
     Route::post('/scholarsbyschool', [AuthController::class,'showScholarsBySchool'])->middleware(['auth:sanctum']);
-    Route::put('/admin/scholar/{scholar_id}/update', [AuthController::class, 'updateScholarInfo'])->middleware(['auth:sanctum']);
+    Route::put('/admin/scholar/{id}/update', [AuthController::class, 'updateScholarInfo'])->middleware(['auth:sanctum']);
+    Route::get('/scholar/details/{id}', [AuthController::class, 'getScholarDetails']);
 });
 
 Route::prefix('/role')->group(function () {
@@ -86,6 +88,10 @@ Route::prefix('/events')->group(function () {
     Route::get('/comments/{id}/replies', [ConcernsController::class, 'getReplies'])->middleware(['auth:sanctum']);
     Route::delete('/comments/{id}', [ConcernsController::class, 'deleteComment'])->middleware(['auth:sanctum']);
     Route::delete('/replies/{id}', [ConcernsController::class, 'deleteReply'])->middleware(['auth:sanctum']);
+    Route::post('/validation/createevent', [EventValidationController::class, 'createEventValidation'])->middleware(['auth:sanctum']);
+    Route::post('/validation/{id}/accept', [EventValidationController::class, 'acceptEvent'])->middleware(['auth:sanctum']);
+    Route::post('/validation/{id}/decline', [EventValidationController::class, 'declineEvent'])->middleware(['auth:sanctum']);
+    Route::get('/event-validations', [EventValidationController::class, 'getAllEventValidations'])->middleware(['auth:sanctum']);
 });
 
 Route::prefix('/faqs')->group(function () {

@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('time_in_location')->nullable();
             $table->string('time_out_image_uuid')->nullable();
             $table->string('time_out_location')->nullable();
-            $table->dateTime('time_in')->nullable();
-            $table->dateTime('time_out')->nullable();
+            $table->time('time_in')->nullable();
+            $table->time('time_out')->nullable();
             $table->timestamps();
 
             $table->foreign('event_id')->references('event_id')->on('events')->onDelete('cascade');

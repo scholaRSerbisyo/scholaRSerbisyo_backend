@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Submission extends Model
 {
@@ -23,9 +24,21 @@ class Submission extends Model
     ];
 
     protected $casts = [
-        'time_in' => 'datetime',
-        'time_out' => 'datetime',
+        'time_in' => 'datetime:H:i',
+        'time_out' => 'datetime:H:i',
     ];
+
+    protected $appends = ['formatted_time_in', 'formatted_time_out'];
+
+    public function getFormattedTimeInAttribute()
+    {
+        return Carbon::parse($this->time_in)->format('H:i');
+    }
+
+    public function getFormattedTimeOutAttribute()
+    {
+        return Carbon::parse($this->time_out)->format('H:i');
+    }
 
     public function event()
     {

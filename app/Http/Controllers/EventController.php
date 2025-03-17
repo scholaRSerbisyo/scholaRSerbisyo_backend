@@ -37,38 +37,77 @@ class EventController extends Controller
     {
         try {
             $eventData = $request->validated();
-    
             $eventData['status'] = $this->determineEventStatus($eventData['date']);
             $event = Event::create($eventData);
-    
-            if ($event) {
-                $this->r2Service->uploadFileToBucket($request->input('image'), $eventData['event_image_uuid']);
-                
-                // Prepare notification data
-                $notificationData = [
-                    'event_id' => $event->event_id,
-                    'event_name' => $event->event_name,
-                    'event_type_name' => $event->eventType->event_type_name, // Assuming there's a relationship to EventType
-                    'description' => $event->description,
-                    'date' => $event->date,
-                    'time_from' => $event->time_from,
-                    'time_to' => $event->time_to,
-                    'event_image_uuid' => $event->event_image_uuid,
-                ];
-                
-                // Send broadcast notification
-                $notificationResult = $this->sendPushNotification->sendBroadcastNotification(new Request($notificationData));
-                
-                Log::info('Event created successfully', ['event_id' => $event->event_id, 'notification_result' => $notificationResult]);
-                return response([
-                    'message' => 'Event created successfully',
-                    'event' => $event,
-                    'notification_result' => $notificationResult
-                ], 201);
+
+            if (!$event) {
+                throw new \Exception('Failed to create event');
             }
+
+            // Upload image
+            $this->r2Service->uploadFileToBucket($request->input('image'), $eventData['event_image_uuid']);
+            
+            // Prepare notification data
+            $notificationData = [
+                'event_id' => $event->event_id,
+                'event_name' => $event->event_name,
+                'event_type_name' => $event->eventType->event_type_name,
+                'description' => $event->description,
+                'date' => $event->date,
+                'time_from' => $event->time_from,
+                'time_to' => $event->time_to,
+                'event_image_uuid' => $event->event_image_uuid,
+            ];
+            
+            try {
+                // Send broadcast notification
+                $notificationResult = $this->sendPushNotification->sendBroadcastNotification(
+                    new Request($notificationData)
+                );
+
+                // Ensure notification result is JSON
+                $notificationResponse = is_string($notificationResult) ? 
+                    json_decode($notificationResult, true) : 
+                    $notificationResult;
+
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    Log::warning('Invalid notification response format', [
+                        'response' => $notificationResult,
+                        'error' => json_last_error_msg()
+                    ]);
+                    $notificationResponse = ['status' => 'warning', 'message' => 'Notification sent with unknown status'];
+                }
+            } catch (\Exception $e) {
+                Log::error('Push notification failed', ['error' => $e->getMessage()]);
+                $notificationResponse = [
+                    'status' => 'error',
+                    'message' => 'Failed to send push notification'
+                ];
+            }
+
+            Log::info('Event created successfully', [
+                'event_id' => $event->event_id, 
+                'notification_result' => $notificationResponse
+            ]);
+
+            return response()->json([
+                'message' => 'Event created successfully',
+                'event' => $event,
+                'notification_result' => $notificationResponse,
+                'status' => 201
+            ], 201);
+
         } catch (\Throwable $th) {
-            Log::error('Error creating event', ['error' => $th->getMessage()]);
-            return response(['message' => $th->getMessage()], 500);
+            Log::error('Error creating event', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'message' => 'Failed to create event',
+                'error' => $th->getMessage(),
+                'status' => 500
+            ], 500);
         }
     }
 
@@ -113,8 +152,9 @@ class EventController extends Controller
                         ],
                         'returnServiceStatus' => $currentYearStatus,
                     ],
-                    'time_in' => $submission->time_in->format('Y-m-d H:i:s'),
-                    'time_out' => $submission->time_out->format('Y-m-d H:i:s'),
+                    'status' => $submission->status,
+                    'time_in' => $submission->time_in,
+                    'time_out' => $submission->time_out,
                     'time_in_location' => $submission->time_in_location,
                     'time_out_location' => $submission->time_out_location,
                     'time_in_image_uuid' => $submission->time_in_image_uuid,
@@ -283,7 +323,8 @@ class EventController extends Controller
                         'id' => $scholar->baranggay->baranggay_id,
                         'name' => $scholar->baranggay->baranggay_name,
                     ],
-                    'returnServiceCount' => (int) $scholar->return_service_count
+                    'returnServiceCount' => (int) $scholar->return_service_count,
+                    'created_at' => $scholar->created_at
                 ];
             });
 
@@ -311,11 +352,65 @@ class EventController extends Controller
                 return response()->json(['message' => 'Scholar not found'], 404);
             }
 
+            // Get return services grouped by year and month
             $returnServices = ReturnService::where('scholar_id', $scholarId)
-                ->select('year', DB::raw('COUNT(*) as count'))
-                ->groupBy('year')
+                ->select(
+                    'year',
+                    DB::raw('CASE 
+                        WHEN completed_at IS NOT NULL THEN MONTH(completed_at)
+                        ELSE MONTH(created_at)
+                    END as month'),
+                    DB::raw('COUNT(*) as count'),
+                    DB::raw('CASE 
+                        WHEN completed_at IS NOT NULL THEN completed_at
+                        ELSE created_at
+                    END as service_date')
+                )
+                ->groupBy('year', 
+                    DB::raw('CASE 
+                        WHEN completed_at IS NOT NULL THEN MONTH(completed_at)
+                        ELSE MONTH(created_at)
+                    END'),
+                    DB::raw('CASE 
+                        WHEN completed_at IS NOT NULL THEN completed_at
+                        ELSE created_at
+                    END')
+                )
                 ->orderBy('year', 'desc')
+                ->orderBy('month', 'asc')
                 ->get();
+
+            // Process the data to organize by semesters
+            $yearlyData = [];
+            foreach ($returnServices as $service) {
+                $year = $service->year;
+                $month = $service->month;
+                
+                if (!isset($yearlyData[$year])) {
+                    $yearlyData[$year] = [
+                        'firstSem' => ['count' => 0, 'months' => []],
+                        'secondSem' => ['count' => 0, 'months' => []]
+                    ];
+                }
+
+                // First semester: July (7) to December (12)
+                // Second semester: January (1) to June (6)
+                if ($month >= 7 && $month <= 12) {
+                    $yearlyData[$year]['firstSem']['count'] += $service->count;
+                    $yearlyData[$year]['firstSem']['months'][] = [
+                        'month' => $month,
+                        'count' => $service->count,
+                        'completed_at' => $service->service_date
+                    ];
+                } else {
+                    $yearlyData[$year]['secondSem']['count'] += $service->count;
+                    $yearlyData[$year]['secondSem']['months'][] = [
+                        'month' => $month,
+                        'count' => $service->count,
+                        'completed_at' => $service->service_date
+                    ];
+                }
+            }
 
             $formattedScholar = [
                 'id' => $scholar->scholar_id,
@@ -331,12 +426,13 @@ class EventController extends Controller
                 'barangay' => [
                     'name' => $scholar->baranggay->baranggay_name,
                 ],
-                'yearlyReturnServices' => $returnServices->map(function ($service) {
+                'yearlyReturnServices' => collect($yearlyData)->map(function ($data, $year) {
                     return [
-                        'year' => $service->year,
-                        'count' => $service->count,
+                        'year' => (int)$year,
+                        'firstSem' => $data['firstSem'],
+                        'secondSem' => $data['secondSem'],
                     ];
-                }),
+                })->values(),
             ];
 
             return response()->json([
@@ -347,7 +443,9 @@ class EventController extends Controller
                 'exception' => $e,
                 'scholar_id' => $scholarId
             ]);
-            return response()->json(['message' => 'An error occurred while fetching scholar with return service count: ' . $e->getMessage()], 500);
+            return response()->json([
+                'message' => 'An error occurred while fetching scholar with return service count: ' . $e->getMessage()
+            ], 500);
         }
     }
 
