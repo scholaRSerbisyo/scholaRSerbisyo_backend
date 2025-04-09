@@ -20,6 +20,8 @@ Install sanctum using composer
 composer require laravel/sanctum
 ```
 
+---
+
 ### 🐳 Start the Laravel Sail Environment (Docker)
 
 ```bash
