@@ -12,6 +12,14 @@ A Laravel REST API backend with Laravel Sail, Sanctum auth, and Cloudflare R2 in
 composer install
 ```
 
+---
+
+Install sanctum using composer
+
+```bash
+composer require laravel/sanctum
+```
+
 ### 🐳 Start the Laravel Sail Environment (Docker)
 
 ```bash
@@ -129,8 +137,14 @@ Run all:
 ```bash
 ./vendor/bin/sail artisan db:seed
 ```
+Includes:
 
-Or individual:
+- AdminTypesSeeder
+- EventTypeSeeders
+- ScholarTypesSeeder
+- UserRolesSeeder
+
+Run individual seeders if needed:
 
 ```bash
 ./vendor/bin/sail artisan db:seed --class=UserRolesSeeder
@@ -143,14 +157,6 @@ Or individual:
 - **Sanctum** for API auth
 - JWT integration (optional)
 - RESTful endpoints for admin, scholar, events, comments, etc.
-
----
-
-## 🧪 Running Tests
-
-```bash
-./vendor/bin/sail artisan test
-```
 
 ---
 
