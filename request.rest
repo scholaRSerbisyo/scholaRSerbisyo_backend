@@ -1,3 +1,5 @@
+###### ROLES
+
 POST http://localhost:8000/api/role/createrole HTTP/1.1
 Content-Type: application/json
 
@@ -16,7 +18,7 @@ Content-Type: application/json
     "role_description": "scholar"
 }
 
-######
+###### SCHOOL
 
 POST http://localhost:8000/api/school/create HTTP/1.1
 Content-Type: application/json
@@ -26,7 +28,7 @@ Content-Type: application/json
     "address": "Carmen"
 }
 
-######
+###### BARANGGAY
 
 POST http://localhost:8000/api/baranggay/create HTTP/1.1
 Content-Type: application/json
@@ -36,7 +38,7 @@ Content-Type: application/json
     "address": "Carmen"
 }
 
-######
+###### SCHOLAR TYPE
 
 POST http://localhost:8000/api/scholartype/create HTTP/1.1
 Content-Type: application/json
@@ -51,14 +53,10 @@ POST http://localhost:8000/api/scholartype/create HTTP/1.1
 Content-Type: application/json
 
 {
-<<<<<<< HEAD
-    "scholar_type_name": "leader"
-=======
     "scholar_type_name": "scholar leader"
->>>>>>> 5f44ad4e39cae813027c968f3ee942f5c9a19b57
 }
 
-######
+###### ADMIN TYPE
 
 POST http://localhost:8000/api/admintype/create HTTP/1.1
 Content-Type: application/json
@@ -94,18 +92,18 @@ Content-Type: application/json
     "admin_type_name": "Community"
 }
 
-######
+###### USER CREATION (Can be either SCHOLAR or ADMIN - Default SCHOLARS) (for admins - change roleid in the database)
 
 POST http://localhost:8000/api/user/createuser HTTP/1.1
 Content-Type: application/json
 Accept: application/json
 
 {
-    "email": "craususrhyle1@gmail.com",
-    "password": "rairudesu"
+    "email": "test@gmail.com",
+    "password": "test123"
 }
 
-######
+###### SCHOLAR CREATION
 
 POST http://localhost:8000/api/user/createscholar HTTP/1.1
 Content-Type: application/json
@@ -116,7 +114,7 @@ Accept: application/json
     "lastname": "cole",
     "age": "23",
     "address": "dddd",
-    "mobilenumber": "09460728560",
+    "mobilenumber": "09123456789",
     "yearlevel": "4th year",
     "scholar_type_id": 1,
     "user_id": 6,
@@ -124,7 +122,7 @@ Accept: application/json
     "baranggay_id": 1
 }
 
-######
+###### ADMIN CREATION
 
 POST http://localhost:8000/api/user/createadmin HTTP/1.1
 Content-Type: application/json
@@ -136,7 +134,7 @@ Accept: application/json
     "user_id": 4
 }
 
-######
+###### ADMIN LOGIN
 
 POST http://localhost:8000/api/user/admin/login HTTP/1.1
 Content-Type: application/json
@@ -147,20 +145,20 @@ Accept: application/json
     "password": "rairudesu"
 }
 
-######
+###### SCHOLAR'S INFO
 
 GET http://localhost:8000/api/user/scholar/me/show HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer 59|BtuzcQyTnwgbeKVRpBbR9OoAtHa8xXP7zOfprBBXcc379611
 
-######
+###### SCHOLAR'S RETURN SERVICE
 
 GET http://localhost:8000/api/events/scholars/return-service-count HTTP/1.1
 Content-Type: application/json
 Accept: application/json
 Authorization: Bearer 78|sx64xhmbswcAtpNGnRrOwnReajgceYd6aTJCH0KT972a9075createScholarType
 
-######
+###### FAQS CREATION
 
 POST http://localhost:8000/api/faqs/create HTTP/1.1
 Content-Type: application/json
@@ -172,7 +170,7 @@ Authorization: Bearer 146|vngOGVnDydEeGJptAAOvJ0C4xLB8sQM7lyGQZb2W96d061a0
     "answer": "Yes why is that?"
 }
 
-######
+###### GETTING FAQS
 
 GET http://localhost:8000/api/faqs/getfaqs HTTP/1.1
 Content-Type: application/json
